@@ -1,4 +1,4 @@
-package request
+package app
 
 type RegisterRequestPayload struct {
 	Email    string `json:"email"`

@@ -4,9 +4,12 @@ import (
 	"strings"
 	"time"
 
-	request "github.com/ardwiinoo/micro-music/authentications/api/auth/app"
-	"github.com/ardwiinoo/micro-music/authentications/internal/exception"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/ardwiinoo/micro-music/authentications/api/auth/app"
+	"github.com/ardwiinoo/micro-music/authentications/internal/exception"
+
 )
 
 type UserEntity struct {
@@ -19,7 +22,7 @@ type UserEntity struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func NewFromRegisterRequest(req request.RegisterRequestPayload) UserEntity {
+func NewFromRegisterRequest(req app.RegisterRequestPayload) UserEntity {
 	return UserEntity{
 		Email:    req.Email,
 		FullName: req.FullName,
@@ -30,22 +33,26 @@ func NewFromRegisterRequest(req request.RegisterRequestPayload) UserEntity {
 	}
 }
 
-func NewFromLoginRequest(req request.LoginRequestPayload) UserEntity {
+func NewFromLoginRequest(req app.LoginRequestPayload) UserEntity {
 	return UserEntity{
 		Email:    req.Email,
 		Password: req.Password,
 	}
 }
 
-func (u UserEntity) validate() (err error) {
-	if err = u.validateEmail(); err != nil {
+func (u UserEntity) Validate() (err error) {
+	if err = u.ValidateEmail(); err != nil {
+		return
+	}
+
+	if err = u.ValidatePassword(); err != nil {
 		return
 	}
 
 	return
 }
 
-func (u UserEntity) validateEmail() (err error) {
+func (u UserEntity) ValidateEmail() (err error) {
 	if u.Email == "" {
 		return exception.ErrEmailRequired
 	}
@@ -57,4 +64,39 @@ func (u UserEntity) validateEmail() (err error) {
 	}
 
 	return
+}
+
+func (u UserEntity) ValidatePassword() (err error) {
+	if u.Password == "" {
+		return exception.ErrPasswordRequired
+	}
+
+	if len(u.Password) < 8 {
+		return exception.ErrPasswordInvalidLength
+	}
+
+	return
+}
+
+func (u UserEntity) IsExists() bool {
+	return u.Id != 0
+}
+
+func (u *UserEntity) EncryptPassword(salt int) (err error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return
+	}
+
+	u.Password = string(hashedPassword)
+	return nil
+}
+
+func (u UserEntity) VerifyPasswordFromEncrypted(plain string) (err error) {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plain))
+}
+
+func (u UserEntity) VerifyPasswordFromPlain(encrypted string) (err error) {
+	return bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(u.Password))
 }
