@@ -1,26 +1,31 @@
-package config
+package config_test
 
 import (
-	"log"
+	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/ardwiinoo/micro-music/authentications/config"
 )
 
-func TestLoadConfig(t *testing.T) {
-	
-	t.Run(("LoadConfig should load the config file"), func(t *testing.T) {
-		fileName := "../../config.yaml"
-		err := LoadConfig(fileName)
+func TestLoadConfig_Success(t *testing.T) {
+	envContent := "APP_NAME=TestApp\n"
+	tmpEnvFile := "../.test.env"
 
-		require.Nil(t, err)
-		log.Printf("Config: %v\n", Cfg)
-	})
+	err := os.WriteFile(tmpEnvFile, []byte(envContent), 0644)
+	assert.NoError(t, err, "Failed to create temporary .env file")
+	defer os.Remove(tmpEnvFile)
 
-	t.Run(("LoadConfig should return an error if the file does not exist"), func(t *testing.T) {
-		fileName := "config.yaml"
-		err := LoadConfig(fileName)
+	err = config.LoadConfig(tmpEnvFile)
+	assert.NoError(t, err, "LoadConfig should succeed")
 
-		require.NotNil(t, err)
-	})
+	assert.Equal(t, "TestApp", config.Cfg.App.Name, "APP_NAME should match the expected value")
+}
+
+func TestLoadConfig_Fail(t *testing.T) {
+	tmpEnvFile := "../.missing.env"
+
+	err := config.LoadConfig(tmpEnvFile)
+	assert.Error(t, err, "LoadConfig should fail if .env file is missing")
 }
