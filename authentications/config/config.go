@@ -2,44 +2,77 @@ package config
 
 import (
 	"os"
+	"strconv"
 
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	App AppConfig `yaml:"app"`
-	DB  DBConfig  `yaml:"db"`
+	App AppConfig
+	DB  DBConfig
 }
 
 type AppConfig struct {
-	Name string `yaml:"name"`
-	Port int    `yaml:"port"`
+	Name string
+	Port int
 }
 
 type DBConfig struct {
-	Host           string           `yaml:"host"`
-	Port           int              `yaml:"port"`
-	User           string           `yaml:"user"`
-	Password       string           `yaml:"password"`
-	DBName         string           `yaml:"dbname"`
-	ConnectionPool DBConnectionPool `yaml:"connection_pool"`
+	Host           string
+	Port           int
+	User           string
+	Password       string
+	DBName         string
+	ConnectionPool DBConnectionPool
 }
 
 type DBConnectionPool struct {
-	MaxIdleConnection     uint8 `yaml:"max_idle_connection"`
-	MaxOpenConnection     uint8 `yaml:"max_open_connection"`
-	MaxLifetimeConnection uint8 `yaml:"max_lifetime_connection"`
-	MaxIdletimeConnection uint8 `yaml:"max_idletime_connection"`
+	MaxIdleConnection     int
+	MaxOpenConnection     int
+	MaxLifetimeConnection int
+	MaxIdletimeConnection int
 }
 
 var Cfg Config
 
-func LoadConfig(fileName string) (err error) {
-	configByte, err := os.ReadFile(fileName)
+func LoadConfig(envPath ...string) error {
 
-	if err != nil {
+	// default
+	path := ".env"
+	if len(envPath) > 0 {
+		path = envPath[0]
+	}
+
+	if err := godotenv.Load(path); err != nil {
 		return err
 	}
 
-	return yaml.Unmarshal(configByte, &Cfg)
+	port, _ := strconv.Atoi(os.Getenv("APP_PORT"))
+	dbPort, _ := strconv.Atoi(os.Getenv("DB_PORT"))
+	maxIdle, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTION"))
+	maxOpen, _ := strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTION"))
+	maxLifetime, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTION"))
+	maxIdletime, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLETIME_CONNECTION"))
+
+	Cfg = Config{
+		App: AppConfig{
+			Name: os.Getenv("APP_NAME"),
+			Port: port,
+		},
+		DB: DBConfig{
+			Host:     os.Getenv("DB_HOST"),
+			Port:     dbPort,
+			User:     os.Getenv("DB_USER"),
+			Password: os.Getenv("DB_PASSWORD"),
+			DBName:   os.Getenv("DB_NAME"),
+			ConnectionPool: DBConnectionPool{
+				MaxIdleConnection:     maxIdle,
+				MaxOpenConnection:     maxOpen,
+				MaxLifetimeConnection: maxLifetime,
+				MaxIdletimeConnection: maxIdletime,
+			},
+		},
+	}
+
+	return nil
 }
