@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"os"
 	"strconv"
 
@@ -15,6 +16,12 @@ type Config struct {
 type AppConfig struct {
 	Name string
 	Port int
+	AppSecret Secret
+}
+
+type Secret struct {
+	AppPrivateKey []byte
+	AppPublicKey []byte
 }
 
 type DBConfig struct {
@@ -54,10 +61,20 @@ func LoadConfig(envPath ...string) error {
 	maxLifetime, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTION"))
 	maxIdletime, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLETIME_CONNECTION"))
 
+	privateKeyBase64 := os.Getenv("APP_PRIVATE_KEY")
+	publicKeyBase64 := os.Getenv("APP_PUBLIC_KEY")
+
+	privateKey, _ := base64.StdEncoding.DecodeString(privateKeyBase64)
+	publicKey, _ := base64.StdEncoding.DecodeString(publicKeyBase64)
+
 	Cfg = Config{
 		App: AppConfig{
 			Name: os.Getenv("APP_NAME"),
 			Port: port,
+			AppSecret: Secret{
+				AppPrivateKey: privateKey,
+				AppPublicKey: publicKey,
+			},
 		},
 		DB: DBConfig{
 			Host:     os.Getenv("DB_HOST"),

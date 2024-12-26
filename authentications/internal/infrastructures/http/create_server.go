@@ -5,6 +5,7 @@ import (
 
 	"github.com/ardwiinoo/micro-music/authentications/config"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures"
+	"github.com/ardwiinoo/micro-music/authentications/internal/interfaces/http/api/authentications"
 	"github.com/ardwiinoo/micro-music/authentications/internal/interfaces/http/api/users"
 )
 
@@ -18,6 +19,7 @@ func CreateServer(container *infrastructures.Container) *fiber.App {
 
 	// Init modules
 	users.Init(router, *container)
+	authentications.Init(router, *container)
 
 	// Error Handling
 
