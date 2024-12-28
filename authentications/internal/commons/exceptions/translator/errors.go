@@ -29,6 +29,10 @@ var (
 	ErrorPasswordRequired = NewError(exceptions.ErrPasswordRequired.Error(), "40002", http.StatusBadRequest)
 	ErrorEmailAlreadyUsed = NewError(exceptions.ErrEmailAlreadyUsed.Error(), "40901", http.StatusConflict)
 	ErrorEmailInvalid     = NewError(exceptions.ErrEmailInvalid.Error(), "40003", http.StatusBadRequest)
+	ErrorPasswordInvalidLength = NewError(exceptions.ErrPasswordInvalidLength.Error(), "40004", http.StatusBadRequest)
+
+	ErrorInternalServer = NewError("internal server error", "50000", http.StatusInternalServerError)
+	ErrorInvalidPayload = NewError("invalid payload", "40000", http.StatusBadRequest)
 )
 
 var ErrorMapping = map[string]Error{
@@ -36,4 +40,7 @@ var ErrorMapping = map[string]Error{
 	exceptions.ErrPasswordRequired.Error(): ErrorPasswordRequired,
 	exceptions.ErrEmailAlreadyUsed.Error(): ErrorEmailAlreadyUsed,
 	exceptions.ErrEmailInvalid.Error(): ErrorEmailInvalid,
+	exceptions.ErrInternalServerError.Error(): ErrorInternalServer,
+	exceptions.ErrInvalidPaylod.Error(): ErrorInvalidPayload,
+	exceptions.ErrPasswordInvalidLength.Error(): ErrorPasswordInvalidLength,
 }
