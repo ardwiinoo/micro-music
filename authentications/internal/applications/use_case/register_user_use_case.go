@@ -9,7 +9,7 @@ import (
 )
 
 type RegisterUserUseCase interface {
-	Execute(ctx context.Context, request entities.RegisterUser) (err error)
+	Execute(ctx context.Context, request entities.RegisterUser) (userId int, err error)
 }
 
 type registerUserUseCase struct {
@@ -24,25 +24,29 @@ func NewRegisterUserUseCase(userRepository users.UserRepository, passwordHash se
 	}
 }
 
-func (r *registerUserUseCase) Execute(ctx context.Context, payload entities.RegisterUser) (err error) {
-	
+func (r *registerUserUseCase) Execute(ctx context.Context, payload entities.RegisterUser) (userId int, err error) {
+
 	err = payload.Validate()
-	
 	if err != nil {
-		return
+		return 0, err
 	}
 
-	r.userRepository.VerifyAvailableEmail(ctx, payload.Email)
+	err = r.userRepository.VerifyAvailableEmail(ctx, payload.Email)
+	if err != nil {
+		return 0, err
+	}
 
 	hashedPassword, err := r.passwordHash.Hash(payload.Password)
-
 	if err != nil {
-		return
-	} 
+		return 0, err
+	}
 
 	payload.Password = hashedPassword
+	id, err := r.userRepository.AddUser(ctx, payload)
+	if err != nil {
+		return 0, err
+	}
 
-	r.userRepository.AddUser(ctx, payload)
+	return id, nil
 
-	return
 }
