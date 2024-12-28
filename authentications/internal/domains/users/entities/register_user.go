@@ -4,12 +4,13 @@ import (
 	"regexp"
 
 	"github.com/ardwiinoo/micro-music/authentications/internal/commons/exceptions"
+
 )
 
 type RegisterUser struct {
-	FullName string
-	Email    string
-	Password string
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (r *RegisterUser) Validate() (err error) {
