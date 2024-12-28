@@ -9,4 +9,9 @@ var (
 	ErrEmailAlreadyUsed = errors.New("email is already used")
 	ErrPasswordInvalidLength = errors.New("password length must be at least 8 characters")
 	ErrFullNameRequired = errors.New("full name is required")
+	ErrInternalServerError = errors.New("internal server error")
+)
+
+var (
+	ErrInvalidPaylod = errors.New("invalid payload")
 )

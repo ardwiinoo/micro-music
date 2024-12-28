@@ -7,6 +7,6 @@ import (
 )
 
 type UserRepository interface {
-	VerifyAvailableEmail(ctx context.Context, email string)
-	AddUser(ctx context.Context, payload entities.RegisterUser)
+	VerifyAvailableEmail(ctx context.Context, email string) (err error)
+	AddUser(ctx context.Context, payload entities.RegisterUser) (id int, err error)
 }
