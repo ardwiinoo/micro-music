@@ -12,6 +12,6 @@ func Init(router fiber.Router, container infrastructures.Container) {
 	userRouter := router.Group("users")
 	
 	{
-		userRouter.Get("/register", handler.Hello)
+		userRouter.Post("", handler.postUserHandler)
 	}
 }
