@@ -3,6 +3,7 @@ package authentications
 import (
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/ardwiinoo/micro-music/authentications/internal/commons/exceptions"
 	"github.com/ardwiinoo/micro-music/authentications/internal/domains/users/entities"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures"
 )
@@ -17,20 +18,23 @@ func newAuthenticationHandler(container infrastructures.Container) *authenticati
 	}
 }
 
-func (a *authenticationHandler) Hello(ctx *fiber.Ctx) error {
+func (a *authenticationHandler) LoginHandler(ctx *fiber.Ctx) error {
+	var payload = entities.LoginUser{}
 
-	request := entities.LoginUser {
-		Email:    "test@example.com",
-		Password: "password123",
-	}
-
-	token, err := a.container.LoginUserUseCase.Execute(ctx.Context(), request)
+	if err := ctx.BodyParser(&payload); err != nil {
+		return exceptions.InvariantError("invalid payload")
+	}	
+	
+	token, err := a.container.LoginUserUseCase.Execute(ctx.Context(), payload)
+	
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "Hello World",
-		"token": token,
-	})
+		"status": "success",
+		"data": fiber.Map{
+			"token": token,
+		},
+	})    
 }
