@@ -12,6 +12,6 @@ func Init(router fiber.Router, container infrastructures.Container) {
 	authenticationRouter := router.Group("auth")
 
 	{
-		authenticationRouter.Get("/login", handler.Hello)
+		authenticationRouter.Post("/login", handler.LoginHandler)
 	}
 }
