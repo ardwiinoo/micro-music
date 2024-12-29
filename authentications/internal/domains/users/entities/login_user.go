@@ -1,26 +1,25 @@
 package entities
 
 import (
-	"github.com/ardwiinoo/micro-music/authentications/internal/commons/exceptions"
+	"errors"
 )
 
-
 type LoginUser struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (r *LoginUser) Validate() (err error) {
-	if r.Email == "" {
-		return exceptions.ErrEmailRequired
+	if r.Email == "" || r.Password == "" {
+		return errors.New("LOGIN_USER.NOT_CONTAIN_NEEDED_PROPERTY")
 	}
 
 	if !isValidEmail(r.Email) {
-		return exceptions.ErrEmailInvalid
+		return errors.New("LOGIN_USER.EMAIL_INVALID")
 	}
 
 	if len(r.Password) < 8 {
-		return exceptions.ErrPasswordInvalidLength
+		return errors.New("LOGIN_USER.PASSWORD_INVALID_LENGTH")
 	}
 
 	return
