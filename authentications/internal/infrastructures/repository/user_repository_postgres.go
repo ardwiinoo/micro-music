@@ -34,27 +34,27 @@ func (u *userRepositoryPostgres) AddUser(ctx context.Context, payload entities.R
 	`
 
 	params := map[string]interface{}{
-		"email":     payload.Email,
-		"password":  payload.Password,
-		"role":      1,
-		"public_id": uuid.Must(uuid.NewRandom()).String(),
-		"full_name": payload.FullName,
+		"email":      payload.Email,
+		"password":   payload.Password,
+		"role":       1,
+		"public_id":  uuid.Must(uuid.NewRandom()).String(),
+		"full_name":  payload.FullName,
 		"created_at": time.Now(),
 		"updated_at": time.Now(),
 	}
 
 	stmt, err := u.db.PrepareNamedContext(ctx, query)
-	
+
 	if err != nil {
 		return
 	}
-	
+
 	defer stmt.Close()
 
 	err = stmt.QueryRowxContext(ctx, params).Scan(&id)
-	
+
 	if err != nil {
-		return 
+		return
 	}
 
 	return
@@ -68,11 +68,32 @@ func (u *userRepositoryPostgres) VerifyAvailableEmail(ctx context.Context, email
 	err = u.db.GetContext(ctx, &id, query, email)
 
 	if err == nil {
-		return exceptions.ErrEmailAlreadyUsed
+		return exceptions.InvariantError("email already in used")
 	}
 
 	if err == sql.ErrNoRows {
 		return nil
+	}
+
+	return
+}
+
+// GetUserByEmail implements users.UserRepository.
+func (u *userRepositoryPostgres) GetUserByEmail(ctx context.Context, email string) (user entities.DetailUser, err error) {
+	query := `
+		SELECT 
+			id, email, full_name, password, public_id, role, created_at, updated_at 
+		FROM users 
+		WHERE email = $1`
+
+	err = u.db.GetContext(ctx, &user, query, email)
+
+	if err == sql.ErrNoRows {
+		return user, exceptions.NotFoundError("user not found")
+	}
+
+	if err != nil {
+		return
 	}
 
 	return

@@ -16,7 +16,6 @@ type pasetoTokenManager struct {
 	publicKey  ed25519.PublicKey
 }
 
-
 func NewPasetoTokenManager(privateKey ed25519.PrivateKey, publicKey ed25519.PublicKey) security.TokenManager {
 	return &pasetoTokenManager{
 		privateKey: privateKey,

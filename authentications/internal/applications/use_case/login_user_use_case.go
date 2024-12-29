@@ -10,7 +10,7 @@ import (
 )
 
 type LoginUserUseCase interface {
-	Execute(ctx context.Context, request entities.LoginUser) (token string, err error)
+	Execute(ctx context.Context, payload entities.LoginUser) (token string, err error)
 }
 
 type loginUserUseCase struct {
@@ -27,13 +27,31 @@ func NewloginUserUseCase(userRepository users.UserRepository, passwordHash secur
 	}
 }
 
-func (l *loginUserUseCase) Execute(ctx context.Context, request entities.LoginUser) (token string, err error) {
-	payload := map[string]interface{}{
-		"user_id": "12345",
-		"role":    "admin",
+func (l *loginUserUseCase) Execute(ctx context.Context, payload entities.LoginUser) (token string, err error) {
+	
+	err = payload.Validate()
+	if err != nil {
+		return "", err
 	}
 
-	token, err = l.tokenManager.GenerateToken(payload, time.Minute*5)
+	user, err := l.userRepository.GetUserByEmail(ctx, payload.Email)
+	if err != nil {
+		return "", err
+	}
 
-	return
+	err = l.passwordHash.Compare(payload.Password, user.Password)
+	if err != nil {
+		return "", err
+	}
+
+	tokenPayload := map[string]interface{}{
+		"public_id": user.PublicId,
+	}
+
+	token, err = l.tokenManager.GenerateToken(tokenPayload, time.Hour*5)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

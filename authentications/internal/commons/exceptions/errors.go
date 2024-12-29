@@ -1,17 +1,33 @@
 package exceptions
 
-import "errors"
+import "net/http"
 
-var (
-	ErrEmailInvalid = errors.New("email is invalid")
-	ErrEmailRequired = errors.New("email is required")
-	ErrPasswordRequired = errors.New("password is required")
-	ErrEmailAlreadyUsed = errors.New("email is already used")
-	ErrPasswordInvalidLength = errors.New("password length must be at least 8 characters")
-	ErrFullNameRequired = errors.New("full name is required")
-	ErrInternalServerError = errors.New("internal server error")
-)
+type AppError struct {
+	Message  string
+	HttpCode int
+}
 
-var (
-	ErrInvalidPaylod = errors.New("invalid payload")
-)
+func (e AppError) Error() string {
+	return e.Message
+}
+
+func InternalServerError(message string) AppError {
+	return AppError{
+		Message:  message,
+		HttpCode: http.StatusInternalServerError,
+	}
+}
+
+func InvariantError(message string) AppError {
+	return AppError{
+		Message:  message,
+		HttpCode: http.StatusBadRequest,
+	}
+}
+
+func NotFoundError(message string) AppError {
+	return AppError{
+		Message:  message,
+		HttpCode: http.StatusNotFound,
+	}
+}

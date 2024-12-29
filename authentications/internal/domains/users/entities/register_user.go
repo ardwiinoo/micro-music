@@ -1,10 +1,8 @@
 package entities
 
 import (
+	"errors"
 	"regexp"
-
-	"github.com/ardwiinoo/micro-music/authentications/internal/commons/exceptions"
-
 )
 
 type RegisterUser struct {
@@ -14,20 +12,16 @@ type RegisterUser struct {
 }
 
 func (r *RegisterUser) Validate() (err error) {
-	if r.FullName == "" {
-		return exceptions.ErrFullNameRequired
-	}
-
-	if r.Email == "" {
-		return exceptions.ErrEmailRequired
+	if r.FullName == ""  || r.Email == "" || r.Password == "" {
+		return errors.New("REGISTER_USER.NOT_CONTAIN_NEEDED_PROPERTY")
 	}
 
 	if !isValidEmail(r.Email) {
-		return exceptions.ErrEmailInvalid
+		return errors.New("REGISTER_USER.EMAIL_INVALID")
 	}
 
 	if len(r.Password) < 8 {
-		return exceptions.ErrPasswordInvalidLength
+		return errors.New("REGISTER_USER.PASSWORD_INVALID_LENGTH")
 	}
 
 	return 
