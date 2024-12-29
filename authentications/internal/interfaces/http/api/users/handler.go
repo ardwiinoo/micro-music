@@ -22,7 +22,7 @@ func (h *userHandler) postUserHandler(ctx *fiber.Ctx) error {
 	var payload = entities.RegisterUser{}
 
 	if err := ctx.BodyParser(&payload); err != nil {
-		return exceptions.ErrInvalidPaylod
+		return exceptions.InvariantError("invalid payload")
 	}
 
 	userId, err := h.container.RegisterUserUseCase.Execute(ctx.UserContext(), payload)
