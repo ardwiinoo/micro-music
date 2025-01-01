@@ -48,5 +48,4 @@ func (r *registerUserUseCase) Execute(ctx context.Context, payload entities.Regi
 	}
 
 	return id, nil
-
 }
