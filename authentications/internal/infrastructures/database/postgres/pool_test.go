@@ -1,4 +1,4 @@
-package postgres
+package postgres_test
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ardwiinoo/micro-music/authentications/config"
+	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures/database/postgres"
 )
 
 func init() {
@@ -18,7 +19,7 @@ func TestConnectionPostgres(t *testing.T) {
 	originalConfig := config.Cfg
 
 	t.Run("Success Connect Postgres", func(t *testing.T) {
-		db, err := ConnectPostgres()
+		db, err := postgres.ConnectPostgres()
 
 		require.Nil(t, err)
 		require.NotNil(t, db)
@@ -35,7 +36,7 @@ func TestConnectionPostgres(t *testing.T) {
 		config.Cfg.DB.Password = "invalid_password"
 		config.Cfg.DB.DBName = "invalid_db"
 
-		db, err := ConnectPostgres()
+		db, err := postgres.ConnectPostgres()
 
 		require.NotNil(t, err)
 		require.Nil(t, db)
