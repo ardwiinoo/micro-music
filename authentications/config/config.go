@@ -11,6 +11,7 @@ import (
 type Config struct {
 	App AppConfig
 	DB  DBConfig
+	Rabbit RabbitMQConfig
 }
 
 type AppConfig struct {
@@ -38,6 +39,10 @@ type DBConnectionPool struct {
 	MaxOpenConnection     int
 	MaxLifetimeConnection int
 	MaxIdletimeConnection int
+}
+
+type RabbitMQConfig struct {
+	ConnString string
 }
 
 var Cfg Config
@@ -88,6 +93,9 @@ func LoadConfig(envPath ...string) error {
 				MaxLifetimeConnection: maxLifetime,
 				MaxIdletimeConnection: maxIdletime,
 			},
+		},
+		Rabbit: RabbitMQConfig{
+			ConnString: os.Getenv("RABBITMQ_SERVER"),
 		},
 	}
 
