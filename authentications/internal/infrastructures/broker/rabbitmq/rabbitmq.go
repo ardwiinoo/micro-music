@@ -1,6 +1,8 @@
 package rabbitmq
 
 import (
+	"encoding/json"
+
 	"github.com/streadway/amqp"
 )
 
@@ -9,21 +11,21 @@ type RabbitMQ struct {
 	channel *amqp.Channel
 }
 
-func NewRabbitMQ(connString string) (rabbitMQ *RabbitMQ, err error) {
+func NewRabbitMQ(connString string) (*RabbitMQ, error) {
 	conn, err := amqp.Dial(connString)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	ch, err := conn.Channel()
 	if err != nil {
 		conn.Close()
-		return
+		return nil, err
 	}
 
 	return &RabbitMQ{
 		connection: conn,
-		channel: ch,
+		channel:    ch,
 	}, nil
 }
 
@@ -37,16 +39,29 @@ func (r *RabbitMQ) Close() {
 	}
 }
 
-func (r *RabbitMQ) PublishMessage(queueName string, body string) (err error) {
-	_, err = r.channel.QueueDeclare(queueName, true, false, false, false, nil)
+func (r *RabbitMQ) PublishEvent(queueName string, eventType string, payload interface{}) error {
+	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
-		return
+		return err
 	}
 
-	err = r.channel.Publish("", queueName, false, false, amqp.Publishing{
-		ContentType: "text/plain",
-		Body: []byte(body),
-	})	
+	event := map[string]interface{}{
+		"type":    eventType,
+		"payload": payloadBytes,
+	}
 
-	return
+	eventBytes, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.channel.QueueDeclare(queueName, true, false, false, false, nil)
+	if err != nil {
+		return err
+	}
+
+	return r.channel.Publish("", queueName, false, false, amqp.Publishing{
+		ContentType: "application/json",
+		Body:        eventBytes,
+	})
 }
