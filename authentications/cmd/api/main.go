@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ardwiinoo/micro-music/authentications/config"
+	_ "github.com/ardwiinoo/micro-music/authentications/docs"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures/http"
 )
