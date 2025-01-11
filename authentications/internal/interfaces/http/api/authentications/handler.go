@@ -6,6 +6,7 @@ import (
 	"github.com/ardwiinoo/micro-music/authentications/internal/commons/exceptions"
 	"github.com/ardwiinoo/micro-music/authentications/internal/domains/users/entities"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures"
+
 )
 
 type authenticationHandler struct {
@@ -18,6 +19,17 @@ func newAuthenticationHandler(container infrastructures.Container) *authenticati
 	}
 }
 
+// LoginHandler godoc
+// @Summary      Login user
+// @Description  Authenticate user and generate access token
+// @Tags         Authentications
+// @Accept       json
+// @Produce      json
+// @Param        request body entities.LoginUser true "Login Payload"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /auth/login [post]
 func (a *authenticationHandler) LoginHandler(ctx *fiber.Ctx) error {
 	var payload = entities.LoginUser{}
 
