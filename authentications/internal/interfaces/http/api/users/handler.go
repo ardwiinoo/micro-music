@@ -18,6 +18,17 @@ func newUserHandler(container infrastructures.Container) *userHandler {
 	}
 }
 
+// RegisterHandler godoc
+// @Summary      Register user
+// @Description  Register new user
+// @Tags         Authentications
+// @Accept       json
+// @Produce      json
+// @Param        request body entities.RegisterUser true "Register Payload"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /users [post]
 func (h *userHandler) postUserHandler(ctx *fiber.Ctx) error {
 	var payload = entities.RegisterUser{}
 
