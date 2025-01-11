@@ -12,5 +12,4 @@ COPY . .
 
 EXPOSE 8080
 
-# Jalankan aplikasi
 CMD ["go", "run", "./cmd/api/main.go"]
