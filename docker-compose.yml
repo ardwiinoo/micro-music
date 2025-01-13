@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+    authentications:
+        build:
+            context: ./authentications
+            dockerfile: Dockerfile
+        env_file: ./authentications/.env
+        ports:
+            - '9001:9001'
+        restart: unless-stopped
+
+    mails:
+        build:
+            context: ./mails
+            dockerfile: Dockerfile
+        env_file: ./mails/.env
+        restart: unless-stopped
+
+    musics:
+        build:
+            context: ./musics
+            dockerfile: Dockerfile
+        env_file: ./musics/.env
+        restart: unless-stopped
