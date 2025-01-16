@@ -6,25 +6,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/security"
+	"github.com/ardwiinoo/micro-music/musics/internal/commons/constants"
+	"github.com/ardwiinoo/micro-music/musics/internal/commons/exceptions"
 )
 
-type contextKey string
-
-const userContextKey contextKey = "user"
-
 func AuthFilter(tokenManager security.TokenManager) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+    return func(c *fiber.Ctx) error {
         token := c.Get("Authorization")
         if token == "" {
-            return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing or invalid token"})
+            return exceptions.UnauthorizedError("Token is required")
         }
 
         payload, err := tokenManager.VerifyToken(token)
-        if err != nil {
-            return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
+        if (err != nil) {
+            return exceptions.UnauthorizedError("Invalid token")
         }
 
-        ctx := context.WithValue(c.UserContext(), userContextKey, payload)
+        publicID, ok := payload["public_id"].(string)
+        if !ok {
+            return exceptions.UnauthorizedError("Invalid token")
+        }
+
+        ctx := context.WithValue(c.UserContext(), constants.PublicIDContextKey, publicID)
         c.SetUserContext(ctx)
 
         return c.Next()

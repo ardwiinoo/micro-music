@@ -34,9 +34,10 @@ func NewContainer() (container *Container, err error) {
 
 	// Repository
 	songRepository := repository.NewSongRepositoryPostgres(db)
+	userRepository := repository.NewUserRepository(db)
 
 	// Use case
-	addSongUseCase := usecase.NewAddSongUseCase(songRepository)
+	addSongUseCase := usecase.NewAddSongUseCase(songRepository, userRepository)
 	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository)
 
 	return &Container{
