@@ -1,4 +1,4 @@
-CREATE TABLE user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     id SERIAL PRIMARY KEY,
     role_name VARCHAR(255) NOT NULL
 );
