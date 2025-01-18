@@ -10,6 +10,6 @@ RUN go mod download
 
 COPY . .
 
-EXPOSE 9002
+EXPOSE 9003
 
 CMD ["go", "run", "./cmd/api/main.go"]
