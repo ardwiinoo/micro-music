@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 
 	"github.com/ardwiinoo/micro-music/musics/config"
 )
