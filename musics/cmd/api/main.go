@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ardwiinoo/micro-music/musics/config"
+	_ "github.com/ardwiinoo/micro-music/musics/docs"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http"
 )
