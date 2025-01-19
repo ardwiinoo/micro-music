@@ -1,6 +1,9 @@
-FROM golang:1.23.4-alpine
+FROM golang:1.23.5-alpine
 
-ENV GO111MODULE=on
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
 WORKDIR /app
 
