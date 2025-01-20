@@ -10,4 +10,6 @@ RUN go mod download
 
 COPY . .
 
+EXPOSE 9002
+
 CMD ["go", "run", "./cmd/main.go"]
