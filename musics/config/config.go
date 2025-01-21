@@ -11,6 +11,7 @@ import (
 type Config struct {
 	App AppConfig
 	DB  DBConfig
+	Cache CacheConfig
 }
 
 type AppConfig struct {
@@ -21,6 +22,12 @@ type AppConfig struct {
 
 type Secret struct {
 	AppPublicKey []byte
+}
+
+type CacheConfig struct {
+	Host     string
+	Password string
+	DB       int
 }
 
 type DBConfig struct {
@@ -84,6 +91,11 @@ func LoadConfig(envPath ...string) error {
 				MaxLifetimeConnection: maxLifetime,
 				MaxIdletimeConnection: maxIdletime,
 			},
+		},
+		Cache: CacheConfig{
+			Host:     os.Getenv("REDIS_SERVER"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       0,
 		},
 	}
 
