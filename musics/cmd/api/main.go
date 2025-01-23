@@ -8,6 +8,7 @@ import (
 	_ "github.com/ardwiinoo/micro-music/musics/docs"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http"
+
 )
 
 func main() {
