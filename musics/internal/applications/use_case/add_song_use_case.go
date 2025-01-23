@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/constants"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs/entities"
@@ -29,12 +31,12 @@ func NewAddSongUseCase(songRepository songs.SongRepository, userRepository users
 
 func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong) (id string, err error) {
 
-	publicID, ok := ctx.Value(constants.PublicIDContextKey).(string)
+	publicID, ok := ctx.Value(constants.PublicIDContextKey).(uuid.UUID)
 	if !ok {
 		return "", errors.New("ADD_SONG_USE_CASE.PUBLIC_ID_NOT_FOUND")
 	}
 
-	user, err := a.userRepository.GetDetailUserByPublicId(ctx, publicID)
+	user, err := a.userRepository.GetDetailUserByPublicId(ctx, publicID.String())
 	if err != nil {
 		return "", errors.New("ADD_SONG_USE_CASE.USER_NOT_FOUND")
 	}
