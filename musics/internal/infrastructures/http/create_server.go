@@ -20,6 +20,9 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:9002
 // @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func CreateServer(container *infrastructures.Container) *fiber.App {
 	router := fiber.New(fiber.Config{
 		Prefork: true,
@@ -28,7 +31,7 @@ func CreateServer(container *infrastructures.Container) *fiber.App {
 	})
 
 	router.Use(middlewares.Logger())
-	router.Get("/swagger/*", swagger.HandlerDefault)
+	router.Get("/songs/swagger/*", swagger.HandlerDefault)
 	
 	songs.Init(router, *container)
 
