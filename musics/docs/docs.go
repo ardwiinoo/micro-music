@@ -46,6 +46,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Add a new song to the database",
                 "consumes": [
                     "application/json"
@@ -66,6 +71,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/entities.AddSong"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {

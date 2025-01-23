@@ -43,6 +43,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/entities.AddSong'
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -61,6 +66,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Add a new song
       tags:
       - Songs
