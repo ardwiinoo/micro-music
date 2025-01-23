@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/security"
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/constants"
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/exceptions"
+
 )
 
 func AuthFilter(tokenManager security.TokenManager) fiber.Handler {
@@ -22,8 +24,13 @@ func AuthFilter(tokenManager security.TokenManager) fiber.Handler {
             return exceptions.UnauthorizedError("Invalid token")
         }
 
-        publicID, ok := payload["public_id"].(string)
+        publicIDStr, ok := payload["public_id"].(string)
         if !ok {
+            return exceptions.UnauthorizedError("Invalid token")
+        }
+
+        publicID, err := uuid.Parse(publicIDStr)
+        if err != nil {
             return exceptions.UnauthorizedError("Invalid token")
         }
 
