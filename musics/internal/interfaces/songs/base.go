@@ -5,6 +5,7 @@ import (
 
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http/middlewares"
+
 )
 
 func Init(router fiber.Router, container infrastructures.Container) {
