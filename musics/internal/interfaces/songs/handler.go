@@ -28,17 +28,21 @@ func NewSongHandler(container infrastructures.Container) *songHandler {
 // @Failure      500 {object} map[string]interface{}
 // @Router       /songs [get]
 func (s *songHandler) getListSongHandler(ctx *fiber.Ctx) error {
-	
-	listSong, err := s.container.GetListSongUseCase.Execute(ctx.UserContext())
+	listSong, isCached, err := s.container.GetListSongUseCase.Execute(ctx.UserContext())
 	if err != nil {
 		return err
+	}
+
+	if isCached {
+		ctx.Set("X-Cache-Status", "HIT")
+	} else {
+		ctx.Set("X-Cache-Status", "MISS")
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "success",
 		"data":   listSong,
 	})
-
 }
 
 // AddSongHandler godoc
@@ -48,9 +52,11 @@ func (s *songHandler) getListSongHandler(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        request body entities.AddSong true "Song Payload"
+// @Param        Authorization header string true "Authorization Bearer Token"
 // @Success      200 {object} map[string]interface{}
 // @Failure      400 {object} map[string]interface{}
 // @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
 // @Router       /songs [post]
 func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 	var payload = entities.AddSong{}

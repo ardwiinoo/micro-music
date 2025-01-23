@@ -44,7 +44,7 @@ func NewContainer() (container *Container, err error) {
 
 	// Use case
 	addSongUseCase := usecase.NewAddSongUseCase(songRepository, userRepository)
-	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository)
+	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository, redis)
 
 	return &Container{
 		DB: db,
