@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -9,15 +10,21 @@ import (
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/security"
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/constants"
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/exceptions"
-
 )
 
-func AuthFilter(tokenManager security.TokenManager) fiber.Handler {
+func TokenFilter(tokenManager security.TokenManager) fiber.Handler {
     return func(c *fiber.Ctx) error {
         token := c.Get("Authorization")
         if token == "" {
             return exceptions.UnauthorizedError("Token is required")
         }
+
+        parts := strings.Split(token, " ")
+        if len(parts) != 2 || parts[0] != "Bearer" {
+            return exceptions.UnauthorizedError("Invalid token format")
+        }
+
+        token = parts[1]
 
         payload, err := tokenManager.VerifyToken(token)
         if (err != nil) {

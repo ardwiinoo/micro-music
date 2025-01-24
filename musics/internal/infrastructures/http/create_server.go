@@ -2,12 +2,15 @@ package http
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 
 	"github.com/ardwiinoo/micro-music/musics/config"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http/middlewares"
 	"github.com/ardwiinoo/micro-music/musics/internal/interfaces/songs"
+
 )
 
 // @title Fiber Example API
@@ -30,7 +33,14 @@ func CreateServer(container *infrastructures.Container) *fiber.App {
 		ErrorHandler: middlewares.ErrorHandler,
 	})
 
-	router.Use(middlewares.Logger())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
+
+	router.Use(logger.New(logger.Config{
+    	Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
+	
 	router.Get("/songs/swagger/*", swagger.HandlerDefault)
 	
 	songs.Init(router, *container)
