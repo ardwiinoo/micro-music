@@ -5,7 +5,6 @@ import (
 
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http/middlewares"
-
 )
 
 func Init(router fiber.Router, container infrastructures.Container) {
@@ -15,6 +14,6 @@ func Init(router fiber.Router, container infrastructures.Container) {
 
 	{
 		songRouter.Get("/", handler.getListSongHandler)
-		songRouter.Post("/", middlewares.AuthFilter(container.TokenManager), handler.addSongHandler)
+		songRouter.Post("/", middlewares.TokenFilter(container.TokenManager), handler.addSongHandler)
 	}
 }
