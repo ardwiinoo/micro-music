@@ -7,7 +7,6 @@ import (
 	"github.com/go-redis/redis/v8"
 
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/cache"
-
 )
 
 type redisCache struct {
@@ -25,16 +24,16 @@ func NewRedisCache(addr, password string, db int) cache.CacheManager {
 }
 
 // Delete implements cache.CacheManager.
-func (r *redisCache) Delete(key string) error {
-	return r.client.Del(context.Background(), key).Err()
+func (r *redisCache) Delete(ctx context.Context, key string) error {
+	return r.client.Del(ctx, key).Err()
 }
 
 // Get implements cache.CacheManager.
-func (r *redisCache) Get(key string) (interface{}, error) {
-	return r.client.Get(context.Background(), key).Result()
+func (r *redisCache) Get(ctx context.Context, key string) (string, error) {
+	return r.client.Get(ctx, key).Result()
 }
 
 // Set implements cache.CacheManager.
-func (r *redisCache) Set(key string, value interface{}, expiration time.Duration) error {
-	return r.client.Set(context.Background(), key, value, expiration).Err()
+func (r *redisCache) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return r.client.Set(ctx, key, value, expiration).Err()
 }
