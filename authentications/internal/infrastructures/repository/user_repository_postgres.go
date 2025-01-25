@@ -24,13 +24,13 @@ func NewUserRepositoryPostgres(db *sqlx.DB) users.UserRepository {
 }
 
 // AddUser implements users.UserRepository.
-func (u *userRepositoryPostgres) AddUser(ctx context.Context, payload entities.RegisterUser) (id int, err error) {
+func (u *userRepositoryPostgres) AddUser(ctx context.Context, payload entities.RegisterUser) (publicId uuid.UUID, err error) {
 	query := `
 		INSERT INTO users 
 			(email, password, role, public_id, full_name, created_at, updated_at)
 		VALUES 
 			(:email, :password, :role, :public_id, :full_name, :created_at, :updated_at)
-		RETURNING id
+		RETURNING public_id
 	`
 
 	params := map[string]interface{}{
@@ -51,7 +51,7 @@ func (u *userRepositoryPostgres) AddUser(ctx context.Context, payload entities.R
 
 	defer stmt.Close()
 
-	err = stmt.QueryRowxContext(ctx, params).Scan(&id)
+	err = stmt.QueryRowxContext(ctx, params).Scan(&publicId)
 
 	if err != nil {
 		return
@@ -82,7 +82,7 @@ func (u *userRepositoryPostgres) VerifyAvailableEmail(ctx context.Context, email
 func (u *userRepositoryPostgres) GetUserByEmail(ctx context.Context, email string) (user entities.DetailUser, err error) {
 	query := `
 		SELECT 
-			id, email, full_name, password, public_id, role, created_at, updated_at 
+			id, email, full_name, password, public_id, role, is_active, created_at, updated_at 
 		FROM users 
 		WHERE email = $1`
 
@@ -90,6 +90,45 @@ func (u *userRepositoryPostgres) GetUserByEmail(ctx context.Context, email strin
 
 	if err == sql.ErrNoRows {
 		return user, exceptions.NotFoundError("user not found")
+	}
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// ActivateUser implements users.UserRepository.
+func (u *userRepositoryPostgres) ActivateUser(ctx context.Context, publicId uuid.UUID) (err error) {
+	query := `UPDATE users SET is_active = true WHERE public_id = $1`
+
+	stmt, err := u.db.PrepareContext(ctx, query)
+
+	if err != nil {
+		return
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, publicId)
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// VeryfyUser implements users.UserRepository.
+func (u *userRepositoryPostgres) VeryfyUser(ctx context.Context, publicId uuid.UUID) (err error) {
+	query := `SELECT id FROM users WHERE public_id = $1`
+
+	var id int
+	err = u.db.GetContext(ctx, &id, query, publicId)
+
+	if err == sql.ErrNoRows {
+		return exceptions.NotFoundError("user not found")
 	}
 
 	if err != nil {

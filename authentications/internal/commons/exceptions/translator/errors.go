@@ -12,4 +12,5 @@ var DomainErrorMapping = map[string]exceptions.AppError{
 	"LOGIN_USER.PASSWORD_INVALID_LENGTH": exceptions.InvariantError("password length must be greater than 8 characters"),
 	"LOGIN_USER.NOT_CONTAIN_NEEDED_PROPERTY": exceptions.InvariantError("cannot login user because not contain needed property"),
 	"DETAIL_USER.NOT_CONTAIN_NEEDED_PROPERTY": exceptions.InvariantError("cannot create detail user because not contain needed property"),
+	"LOGIN_USER_USE_CASE.USER_NOT_ACTIVATED": exceptions.UnauthorizedError("user not activated"),
 }

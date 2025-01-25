@@ -13,5 +13,7 @@ func Init(router fiber.Router, container infrastructures.Container) {
 
 	{
 		authenticationRouter.Post("/login", handler.LoginHandler)
+		authenticationRouter.Post("/register", handler.RegisterHandler)
+		authenticationRouter.Get("/activate/:publicId", handler.ActivateUserHandler)
 	}
 }

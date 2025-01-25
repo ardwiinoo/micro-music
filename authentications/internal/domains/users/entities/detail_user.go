@@ -13,6 +13,7 @@ type DetailUser struct {
 	Password  string 		`json:"password" db:"password"`
 	PublicId  uuid.UUID   	`json:"public_id" db:"public_id"`
 	Role      int    		`json:"role" db:"role"`
+	IsActive bool   		`json:"is_active" db:"is_active"`
 	CreatedAt string 		`json:"created_at" db:"created_at"`
 	UpdatedAt string 		`json:"updated_at" db:"updated_at"`
 }

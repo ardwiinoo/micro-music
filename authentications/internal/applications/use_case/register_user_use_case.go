@@ -2,16 +2,18 @@ package usecase
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/ardwiinoo/micro-music/authentications/config"
 	"github.com/ardwiinoo/micro-music/authentications/internal/applications/security"
+	"github.com/ardwiinoo/micro-music/authentications/internal/commons/constants"
 	"github.com/ardwiinoo/micro-music/authentications/internal/domains/users"
 	"github.com/ardwiinoo/micro-music/authentications/internal/domains/users/entities"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures/broker/rabbitmq"
+	"github.com/google/uuid"
 )
 
 type RegisterUserUseCase interface {
-	Execute(ctx context.Context, request entities.RegisterUser) (userId int, err error)
+	Execute(ctx context.Context, request entities.RegisterUser) (publicId uuid.UUID, err error)
 }
 
 type registerUserUseCase struct {
@@ -29,39 +31,40 @@ func NewRegisterUserUseCase(userRepository users.UserRepository, passwordHash se
 	}
 }
 
-func (r *registerUserUseCase) Execute(ctx context.Context, payload entities.RegisterUser) (userId int, err error) {
+func (r *registerUserUseCase) Execute(ctx context.Context, payload entities.RegisterUser) (publicId uuid.UUID, err error) {
 
 	err = payload.Validate()
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
 	err = r.userRepository.VerifyAvailableEmail(ctx, payload.Email)
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
 	hashedPassword, err := r.passwordHash.Hash(payload.Password)
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
 	payload.Password = hashedPassword
-	id, err := r.userRepository.AddUser(ctx, payload)
+	publicId, err = r.userRepository.AddUser(ctx, payload)
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
 	eventPayload := map[string]string{
-		"user_id": strconv.Itoa(id),
+		"public_id": publicId.String(),
 		"email":   payload.Email,
 		"name":    payload.FullName,
+		"activation_link": config.Cfg.App.VerificationUrl + "/auth/activate/" + publicId.String(),
 	}
 	
-	err = r.rabbitMQ.PublishEvent("email_events", "user_registered", eventPayload)
+	err = r.rabbitMQ.PublishEvent(constants.QueueTypes.EmailQueue, constants.EventType.UserRegistered, eventPayload)
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
-	return id, nil
+	return publicId, nil
 }

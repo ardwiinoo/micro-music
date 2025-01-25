@@ -18,6 +18,7 @@ type AppConfig struct {
 	Name string
 	Port int
 	AppSecret Secret
+	VerificationUrl string
 }
 
 type Secret struct {
@@ -80,6 +81,7 @@ func LoadConfig(envPath ...string) error {
 				AppPrivateKey: privateKey,
 				AppPublicKey: publicKey,
 			},
+			VerificationUrl: os.Getenv("VERIF_BASE_URL"),
 		},
 		DB: DBConfig{
 			Host:     os.Getenv("DB_HOST"),

@@ -31,3 +31,10 @@ func NotFoundError(message string) AppError {
 		HttpCode: http.StatusNotFound,
 	}
 }
+
+func UnauthorizedError(message string) AppError {
+	return AppError{
+		Message:  message,
+		HttpCode: http.StatusUnauthorized,
+	}
+}
