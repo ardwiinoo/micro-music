@@ -18,6 +18,38 @@ definitions:
 info:
   contact: {}
 paths:
+  /auth/activate/{publicId}:
+    get:
+      consumes:
+      - application/json
+      description: Activate user account
+      parameters:
+      - description: Public ID
+        in: path
+        name: publicId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Activate user
+      tags:
+      - Authentications
   /auth/login:
     post:
       consumes:
@@ -51,7 +83,7 @@ paths:
       summary: Login user
       tags:
       - Authentications
-  /users:
+  /auth/register:
     post:
       consumes:
       - application/json
