@@ -2,13 +2,14 @@ package http
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 
 	"github.com/ardwiinoo/micro-music/authentications/config"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/authentications/internal/infrastructures/http/middlewares"
-	"github.com/ardwiinoo/micro-music/authentications/internal/interfaces/http/api/authentications"
-	"github.com/ardwiinoo/micro-music/authentications/internal/interfaces/http/api/users"
+	authentications "github.com/ardwiinoo/micro-music/authentications/internal/interfaces/http/api/auth"
 )
 
 // @title Fiber Example API
@@ -28,11 +29,16 @@ func CreateServer(container *infrastructures.Container) *fiber.App {
 		ErrorHandler: middlewares.ErrorHandler,
 	})
 
-	router.Use(middlewares.Logger())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 
-	router.Get("/swagger/*", swagger.HandlerDefault)
+	router.Use(logger.New(logger.Config{
+    	Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
-	users.Init(router, *container)
+	router.Get("/auth/swagger/*", swagger.HandlerDefault)
+
 	authentications.Init(router, *container)
 
 	return router
