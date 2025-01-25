@@ -17,6 +17,7 @@ type Container struct {
 	UserRepository   users.UserRepository
 	RegisterUserUseCase usecase.RegisterUserUseCase
 	LoginUserUseCase usecase.LoginUserUseCase
+	ActivateUserUseCase usecase.ActivateUserUseCase
 	RabbitMQ *rabbitmq.RabbitMQ
 }
 
@@ -43,6 +44,7 @@ func NewContainer() (container *Container, err error) {
 	// UseCase
 	registerUserUseCase := usecase.NewRegisterUserUseCase(userRepo, passwordHash, rabbit)
 	loginUserUseCase := usecase.NewloginUserUseCase(userRepo, passwordHash, pasetoManager)
+	activateUserUseCase := usecase.NewActivateUserUseCase(userRepo)
 
 	return &Container{
 		DB: db,
@@ -50,6 +52,7 @@ func NewContainer() (container *Container, err error) {
 		UserRepository: userRepo,
 		RegisterUserUseCase: registerUserUseCase,
 		LoginUserUseCase: loginUserUseCase,
+		ActivateUserUseCase: activateUserUseCase,
 	}, nil
 }
 
