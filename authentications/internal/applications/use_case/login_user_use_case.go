@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/ardwiinoo/micro-music/authentications/internal/applications/security"
@@ -42,6 +43,10 @@ func (l *loginUserUseCase) Execute(ctx context.Context, payload entities.LoginUs
 	err = l.passwordHash.Compare(payload.Password, user.Password)
 	if err != nil {
 		return "", err
+	}
+
+	if user.IsActive == false {
+		return "", errors.New("LOGIN_USER_USE_CASE.USER_NOT_ACTIVATED")
 	}
 
 	tokenPayload := map[string]interface{}{
