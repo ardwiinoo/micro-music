@@ -2,10 +2,14 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
+	"github.com/google/uuid"
+
+	"github.com/ardwiinoo/micro-music/playlists/internal/commons/constants"
 	"github.com/ardwiinoo/micro-music/playlists/internal/domains/playlists"
 	"github.com/ardwiinoo/micro-music/playlists/internal/domains/playlists/entities"
-	"github.com/google/uuid"
+	"github.com/ardwiinoo/micro-music/playlists/internal/domains/users"
 )
 
 type AddPlaylistUseCase interface {
@@ -14,19 +18,34 @@ type AddPlaylistUseCase interface {
 
 type addPlaylistUseCase struct {
 	playlistRepository playlists.PlaylistRepository
+	userRepository users.UserRepository
 }
 
-func NewAddPlaylistUseCase(playlistRepository playlists.PlaylistRepository) AddPlaylistUseCase {
+func NewAddPlaylistUseCase(playlistRepository playlists.PlaylistRepository, userRepository users.UserRepository) AddPlaylistUseCase {
 	return &addPlaylistUseCase{
 		playlistRepository: playlistRepository,
+		userRepository: userRepository,
 	}
 }
 
 func (a *addPlaylistUseCase) Execute(ctx context.Context, payload entities.AddPlaylist) (playlistId uuid.UUID, err error) {
-	playlistId, err = a.playlistRepository.AddPlaylist(&payload)
-	if err != nil {
-		return uuid.UUID{}, err
+	publicID, ok := ctx.Value(constants.PublicIDContextKey).(uuid.UUID)
+	if !ok {
+		return uuid.Nil, errors.New("ADD_PLAYLIST_USE_CASE.PUBLIC_ID_NOT_FOUND")
 	}
 
-	return playlistId, nil
+	user, err := a.userRepository.GetDetailUserByPublicId(ctx, publicID.String())
+	if err != nil {
+		return uuid.Nil, errors.New("ADD_PLAYLIST_USE_CASE.USER_NOT_FOUND")
+	}
+
+	if user.Role != constants.UserRoleID {
+		return uuid.Nil, errors.New("ADD_PLAYLIST_USE_CASE.USER_NOT_AUTHORIZED")
+	}
+
+	if err := payload.Validate(); err != nil {
+		return uuid.Nil, err
+	}
+
+	return a.playlistRepository.AddPlaylist(&payload, user.ID)
 }
