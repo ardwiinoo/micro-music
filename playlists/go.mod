@@ -28,6 +28,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.8.0 // indirect
+	github.com/streadway/amqp v1.1.0
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 )
