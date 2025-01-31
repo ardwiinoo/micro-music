@@ -13,5 +13,7 @@ func Init(router fiber.Router, container infrastructures.Container) {
 
 	{
 		playlistRouter.Post("/", middlewares.TokenFilter(container.TokenManager), handler.AddPlaylistHandler)
+		playlistRouter.Delete("/:playlistId", middlewares.TokenFilter(container.TokenManager), handler.DeletePlaylistHandler)
+		playlistRouter.Post("/:playlistId/songs", middlewares.TokenFilter(container.TokenManager), handler.AddPlaylistSongHandler)
 	}
 }

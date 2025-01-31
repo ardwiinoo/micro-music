@@ -18,13 +18,13 @@ type AddPlaylistUseCase interface {
 
 type addPlaylistUseCase struct {
 	playlistRepository playlists.PlaylistRepository
-	userRepository users.UserRepository
+	userRepository     users.UserRepository
 }
 
 func NewAddPlaylistUseCase(playlistRepository playlists.PlaylistRepository, userRepository users.UserRepository) AddPlaylistUseCase {
 	return &addPlaylistUseCase{
 		playlistRepository: playlistRepository,
-		userRepository: userRepository,
+		userRepository:     userRepository,
 	}
 }
 
@@ -47,5 +47,5 @@ func (a *addPlaylistUseCase) Execute(ctx context.Context, payload entities.AddPl
 		return uuid.Nil, err
 	}
 
-	return a.playlistRepository.AddPlaylist(&payload, user.ID)
+	return a.playlistRepository.AddPlaylist(ctx, &payload, user.ID)
 }

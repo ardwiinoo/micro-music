@@ -13,10 +13,12 @@ import (
 )
 
 type Container struct {
-	DB *sqlx.DB
-	TokenManager appSecurity.TokenManager
-	AddPlaylistUseCase usecase.AddPlaylistUseCase
-	RabbitMQ *rabbitmq.RabbitMQ
+	DB                     *sqlx.DB
+	TokenManager           appSecurity.TokenManager
+	AddPlaylistUseCase     usecase.AddPlaylistUseCase
+	DeletePlaylistUseCase  usecase.DeletePlaylistUseCase
+	AddPlaylistSongUseCase usecase.AddPlaylistSongUseCase
+	RabbitMQ               *rabbitmq.RabbitMQ
 }
 
 func NewContainer() (container *Container, err error) {
@@ -32,7 +34,7 @@ func NewContainer() (container *Container, err error) {
 		db.Close()
 		return nil, err
 	}
-	
+
 	// Security
 	pasetoManager := infraSecurity.NewPasetoTokenManager(config.Cfg.App.AppSecret.AppPublicKey)
 
@@ -42,12 +44,16 @@ func NewContainer() (container *Container, err error) {
 
 	// UseCase
 	addPlaylistUseCase := usecase.NewAddPlaylistUseCase(playlistRepository, userRepository)
-	
+	deletePlaylistUseCase := usecase.NewDeletePlaylistUseCase(playlistRepository, userRepository)
+	addPlaylistSongUseCase := usecase.NewAddPlaylistSongUseCase(playlistRepository, userRepository)
+
 	return &Container{
-		DB: db,
-		RabbitMQ: rabbit,
-		TokenManager: pasetoManager,
-		AddPlaylistUseCase: addPlaylistUseCase,
+		DB:                     db,
+		RabbitMQ:               rabbit,
+		TokenManager:           pasetoManager,
+		AddPlaylistUseCase:     addPlaylistUseCase,
+		DeletePlaylistUseCase:  deletePlaylistUseCase,
+		AddPlaylistSongUseCase: addPlaylistSongUseCase,
 	}, nil
 }
 
