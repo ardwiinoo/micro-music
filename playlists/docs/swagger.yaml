@@ -1,0 +1,139 @@
+definitions:
+  entities.AddPlaylist:
+    properties:
+      name:
+        type: string
+    type: object
+  entities.AddPlaylistSong:
+    properties:
+      song_id:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /playlists:
+    post:
+      consumes:
+      - application/json
+      description: Add a new playlist to the database
+      parameters:
+      - description: Playlist Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AddPlaylist'
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new playlist
+      tags:
+      - Playlists
+  /playlists/{playlistId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a playlist from the database
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: playlistId
+        required: true
+        type: string
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a playlist
+      tags:
+      - Playlists
+  /playlists/{playlistId}/songs:
+    post:
+      consumes:
+      - application/json
+      description: Add a new song to an existing playlist
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: playlistId
+        required: true
+        type: string
+      - description: Song Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AddPlaylistSong'
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Add a song to a playlist
+      tags:
+      - Playlists
+swagger: "2.0"
