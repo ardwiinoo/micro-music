@@ -19,6 +19,19 @@ func NewPlaylistHandler(container infrastructures.Container) *playlistHandler {
 	}
 }
 
+// AddPlaylistHandler godoc
+// @Summary      Add a new playlist
+// @Description  Add a new playlist to the database
+// @Tags         Playlists
+// @Accept       json
+// @Produce      json
+// @Param        request body entities.AddPlaylist true "Playlist Payload"
+// @Param        Authorization header string true "Authorization Bearer Token"
+// @Success      201 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
+// @Router       /playlists [post]
 func (h *playlistHandler) AddPlaylistHandler(ctx *fiber.Ctx) error {
 	var payload = entities.AddPlaylist{}
 
@@ -39,6 +52,19 @@ func (h *playlistHandler) AddPlaylistHandler(ctx *fiber.Ctx) error {
 	})
 }
 
+// DeletePlaylistHandler godoc
+// @Summary      Delete a playlist
+// @Description  Delete a playlist from the database
+// @Tags         Playlists
+// @Accept       json
+// @Produce      json
+// @Param        playlistId path string true "Playlist ID"
+// @Param        Authorization header string true "Authorization Bearer Token"
+// @Success      204 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
+// @Router       /playlists/{playlistId} [delete]
 func (h *playlistHandler) DeletePlaylistHandler(ctx *fiber.Ctx) error {
 	playlistID := ctx.Params("playlistId")
 
@@ -57,6 +83,20 @@ func (h *playlistHandler) DeletePlaylistHandler(ctx *fiber.Ctx) error {
 	})
 }
 
+// AddPlaylistSongHandler godoc
+// @Summary      Add a song to a playlist
+// @Description  Add a new song to an existing playlist
+// @Tags         Playlists
+// @Accept       json
+// @Produce      json
+// @Param        playlistId path string true "Playlist ID"
+// @Param        request body entities.AddPlaylistSong true "Song Payload"
+// @Param        Authorization header string true "Authorization Bearer Token"
+// @Success      201 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
+// @Router       /playlists/{playlistId}/songs [post]
 func (h *playlistHandler) AddPlaylistSongHandler(ctx *fiber.Ctx) error {
 	playlistID := ctx.Params("playlistId")
 	var payload = entities.AddPlaylistSong{}
