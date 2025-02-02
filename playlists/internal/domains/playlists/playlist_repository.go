@@ -12,4 +12,5 @@ type PlaylistRepository interface {
 	DeletePlaylist(ctx context.Context, playlistID uuid.UUID) (err error)
 	ValidatePlaylistOwner(ctx context.Context, playlistID uuid.UUID, userID int) (err error)
 	AddPlaylistSong(ctx context.Context, playlistID uuid.UUID, songID uuid.UUID) (err error)
+	GetListPlaylistByUserPublicID(ctx context.Context, userID int) (playlists []entities.DetailPlaylist, err error)
 }
