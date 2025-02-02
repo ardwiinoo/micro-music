@@ -120,3 +120,26 @@ func (h *playlistHandler) AddPlaylistSongHandler(ctx *fiber.Ctx) error {
 		"status": "success",
 	})
 }
+
+// GetListPlaylistHandler godoc
+// @Summary      Get list of playlists
+// @Description  Retrieve a list of playlists available in the system
+// @Tags         Playlists
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Authorization Bearer Token"
+// @Success      200 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
+// @Router       /playlists [get]
+func (h *playlistHandler) GetListPlaylistHandler(ctx *fiber.Ctx) error {
+	listPlaylist, err := h.container.GetListPlaylistUseCase.Execute(ctx.UserContext())
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "success",
+		"data":   listPlaylist,
+	})
+}

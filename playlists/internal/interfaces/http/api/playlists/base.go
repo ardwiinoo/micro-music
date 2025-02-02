@@ -15,5 +15,6 @@ func Init(router fiber.Router, container infrastructures.Container) {
 		playlistRouter.Post("/", handler.AddPlaylistHandler)
 		playlistRouter.Delete("/:playlistId", handler.DeletePlaylistHandler)
 		playlistRouter.Post("/:playlistId/songs", handler.AddPlaylistSongHandler)
+		playlistRouter.Get("/", handler.GetListPlaylistHandler)
 	}
 }

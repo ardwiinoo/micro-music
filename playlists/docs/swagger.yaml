@@ -13,6 +13,34 @@ info:
   contact: {}
 paths:
   /playlists:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of playlists available in the system
+      parameters:
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get list of playlists
+      tags:
+      - Playlists
     post:
       consumes:
       - application/json

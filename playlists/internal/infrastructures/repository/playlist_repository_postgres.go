@@ -116,3 +116,23 @@ func (p *playlistRepository) AddPlaylistSong(ctx context.Context, playlistID uui
 
 	return nil
 }
+
+func (p *playlistRepository) GetListPlaylistByUserPublicID(ctx context.Context, userID int) (playlists []entities.DetailPlaylist, err error) {
+	query := `
+		SELECT
+			p.id, p.name, p.created_at, p.updated_at, u.full_name AS owner
+		FROM
+			playlists p
+		JOIN
+			users u ON p.owner_id = u.id
+		WHERE
+			p.owner_id = $1
+	`
+
+	err = p.db.SelectContext(ctx, &playlists, query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return playlists, nil
+}
