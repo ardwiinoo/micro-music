@@ -10,7 +10,6 @@ import (
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/http/middlewares"
 	"github.com/ardwiinoo/micro-music/musics/internal/interfaces/songs"
-
 )
 
 // @title Fiber Example API
@@ -28,8 +27,8 @@ import (
 // @name Authorization
 func CreateServer(container *infrastructures.Container) *fiber.App {
 	router := fiber.New(fiber.Config{
-		Prefork: true,
-		AppName: config.Cfg.App.Name,
+		Prefork:      true,
+		AppName:      config.Cfg.App.Name,
 		ErrorHandler: middlewares.ErrorHandler,
 	})
 
@@ -38,11 +37,11 @@ func CreateServer(container *infrastructures.Container) *fiber.App {
 	}))
 
 	router.Use(logger.New(logger.Config{
-    	Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
-	
+
 	router.Get("/songs/swagger/*", swagger.HandlerDefault)
-	
+
 	songs.Init(router, *container)
 
 	return router

@@ -72,6 +72,8 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status": "success",
-		"data":   fiber.Map{"id": id},
+		"data": fiber.Map{
+			"song_id": id,
+		},
 	})
 }
