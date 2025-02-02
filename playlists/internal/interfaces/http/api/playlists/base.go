@@ -9,11 +9,11 @@ import (
 
 func Init(router fiber.Router, container infrastructures.Container) {
 	handler := NewPlaylistHandler(container)
-	playlistRouter := router.Group("/playlists")
+	playlistRouter := router.Group("/playlists", middlewares.TokenFilter(container.TokenManager))
 
 	{
-		playlistRouter.Post("/", middlewares.TokenFilter(container.TokenManager), handler.AddPlaylistHandler)
-		playlistRouter.Delete("/:playlistId", middlewares.TokenFilter(container.TokenManager), handler.DeletePlaylistHandler)
-		playlistRouter.Post("/:playlistId/songs", middlewares.TokenFilter(container.TokenManager), handler.AddPlaylistSongHandler)
+		playlistRouter.Post("/", handler.AddPlaylistHandler)
+		playlistRouter.Delete("/:playlistId", handler.DeletePlaylistHandler)
+		playlistRouter.Post("/:playlistId/songs", handler.AddPlaylistSongHandler)
 	}
 }
