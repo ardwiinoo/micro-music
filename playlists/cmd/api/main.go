@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ardwiinoo/micro-music/playlists/config"
+	_ "github.com/ardwiinoo/micro-music/playlists/docs"
 	"github.com/ardwiinoo/micro-music/playlists/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/playlists/internal/infrastructures/http"
 )
@@ -25,7 +26,7 @@ func main() {
 
 	port := ":" + strconv.Itoa(config.Cfg.App.Port)
 	log.Printf("Starting server on %s", port)
-	
+
 	if err := server.Listen(port); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
