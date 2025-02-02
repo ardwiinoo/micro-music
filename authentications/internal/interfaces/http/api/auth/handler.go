@@ -35,12 +35,12 @@ func (a *authenticationHandler) LoginHandler(ctx *fiber.Ctx) error {
 
 	if err := ctx.BodyParser(&payload); err != nil {
 		return exceptions.InvariantError("invalid payload")
-	}	
-	
+	}
+
 	token, err := a.container.LoginUserUseCase.Execute(ctx.Context(), payload)
-	
+
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return err
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -48,7 +48,7 @@ func (a *authenticationHandler) LoginHandler(ctx *fiber.Ctx) error {
 		"data": fiber.Map{
 			"token": token,
 		},
-	})    
+	})
 }
 
 // RegisterHandler godoc
@@ -74,11 +74,11 @@ func (h *authenticationHandler) RegisterHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status": "success",
 		"data": fiber.Map{
-			"publicId": publicId,
+			"public_id": publicId,
 		},
 	})
 }
@@ -113,7 +113,7 @@ func (h *authenticationHandler) ActivateUserHandler(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.JSON(fiber.Map{
-		"status": "success",
+		"status":  "success",
 		"message": "User activated successfully",
 	})
 }
