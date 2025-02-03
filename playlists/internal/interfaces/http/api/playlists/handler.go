@@ -143,3 +143,35 @@ func (h *playlistHandler) GetListPlaylistHandler(ctx *fiber.Ctx) error {
 		"data":   listPlaylist,
 	})
 }
+
+// ExportPlaylistHandler godoc
+// @Summary      Export playlist
+// @Description  Export a playlist and send it via email
+// @Tags         Playlists
+// @Accept       json
+// @Produce      json
+// @Param        playlistId path string true "Playlist ID"
+// @Param        Authorization header string true "Authorization Bearer Token"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Security     ApiKeyAuth
+// @Router       /playlists/{playlistId}/export [post]
+func (h *playlistHandler) ExportPlaylistHandler(ctx *fiber.Ctx) error {
+	playlistID := ctx.Params("playlistId")
+
+	playlistUUID, err := uuid.Parse(playlistID)
+	if err != nil {
+		return exceptions.InvariantError("invalid playlist ID")
+	}
+
+	err = h.container.ExportPlaylistUseCase.Execute(ctx.UserContext(), playlistUUID)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "playlist export initiated",
+	})
+}
