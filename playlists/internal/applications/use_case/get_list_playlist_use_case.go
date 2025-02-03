@@ -37,5 +37,5 @@ func (g getListPlaylistUseCase) Execute(ctx context.Context) ([]entities.DetailP
 		return nil, errors.New("GET_LIST_PLAYLIST_USE_CASE.USER_NOT_FOUND")
 	}
 
-	return g.playlistRepository.GetListPlaylistByUserPublicID(ctx, user.ID)
+	return g.playlistRepository.GetListPlaylistByUserID(ctx, user.ID)
 }

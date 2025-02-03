@@ -19,6 +19,7 @@ type Container struct {
 	DeletePlaylistUseCase  usecase.DeletePlaylistUseCase
 	AddPlaylistSongUseCase usecase.AddPlaylistSongUseCase
 	GetListPlaylistUseCase usecase.GetListPlaylistUseCase
+	ExportPlaylistUseCase  usecase.ExportPlaylistUseCase
 	RabbitMQ               *rabbitmq.RabbitMQ
 }
 
@@ -48,6 +49,7 @@ func NewContainer() (container *Container, err error) {
 	deletePlaylistUseCase := usecase.NewDeletePlaylistUseCase(playlistRepository, userRepository)
 	addPlaylistSongUseCase := usecase.NewAddPlaylistSongUseCase(playlistRepository, userRepository)
 	getListPlaylistUseCase := usecase.NewGetListPlaylistUseCase(playlistRepository, userRepository)
+	exportPlaylistUseCase := usecase.NewExportPlaylistUseCase(playlistRepository, userRepository, rabbit)
 
 	return &Container{
 		DB:                     db,
@@ -57,6 +59,7 @@ func NewContainer() (container *Container, err error) {
 		DeletePlaylistUseCase:  deletePlaylistUseCase,
 		AddPlaylistSongUseCase: addPlaylistSongUseCase,
 		GetListPlaylistUseCase: getListPlaylistUseCase,
+		ExportPlaylistUseCase:  exportPlaylistUseCase,
 	}, nil
 }
 

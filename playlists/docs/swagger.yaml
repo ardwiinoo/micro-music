@@ -119,6 +119,45 @@ paths:
       summary: Delete a playlist
       tags:
       - Playlists
+  /playlists/{playlistId}/export:
+    post:
+      consumes:
+      - application/json
+      description: Export a playlist and send it via email
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: playlistId
+        required: true
+        type: string
+      - description: Authorization Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Export playlist
+      tags:
+      - Playlists
   /playlists/{playlistId}/songs:
     post:
       consumes:
