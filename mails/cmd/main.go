@@ -28,6 +28,7 @@ func main() {
 
 	router := events.NewEventRouter()
 	router.Register("user_registered", handlers.UserRegisteredHandler(mailer))
+	router.Register("export_playlist", handlers.ExportPlaylistHandler(mailer))
 
 	sub, err := rabbitmq.NewSubscriber(conn, "email_events")
 	if err != nil {
