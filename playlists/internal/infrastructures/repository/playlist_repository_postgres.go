@@ -117,7 +117,7 @@ func (p *playlistRepository) AddPlaylistSong(ctx context.Context, playlistID uui
 	return nil
 }
 
-func (p *playlistRepository) GetListPlaylistByUserPublicID(ctx context.Context, userID int) (playlists []entities.DetailPlaylist, err error) {
+func (p *playlistRepository) GetListPlaylistByUserID(ctx context.Context, userID int) (playlists []entities.DetailPlaylist, err error) {
 	query := `
 		SELECT
 			p.id, p.name, p.created_at, p.updated_at, u.full_name AS owner
@@ -135,4 +135,38 @@ func (p *playlistRepository) GetListPlaylistByUserPublicID(ctx context.Context, 
 	}
 
 	return playlists, nil
+}
+
+func (p *playlistRepository) GetPlaylistWithSongs(ctx context.Context, playlistID uuid.UUID, userID int) (playlist *entities.ExportPlaylist, err error) {
+	query := `
+		SELECT 
+			p.id AS playlist_id, 
+			p.name AS playlist_name, 
+			m.id AS song_id, 
+			m.title, 
+			m.artist, 
+			m.year
+		FROM  playlists p
+		JOIN playlist_songs ps ON p.id = ps.playlist_id
+		JOIN songs m ON ps.song_id = m.id
+		WHERE p.id = $1 AND p.owner_id = $2;
+	`
+
+	var result []entities.SongDetail
+	err = p.db.SelectContext(ctx, &result, query, playlistID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result) == 0 {
+		return nil, nil
+	}
+
+	playlist = &entities.ExportPlaylist{
+		PlaylistID:   result[0].PlaylistID,
+		PlaylistName: result[0].PlaylistName,
+		Songs:        result,
+	}
+
+	return playlist, nil
 }
