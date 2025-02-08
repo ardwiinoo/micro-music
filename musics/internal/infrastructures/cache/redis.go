@@ -13,14 +13,19 @@ type redisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(addr, password string, db int) cache.CacheManager {
-	return &redisCache{
-		client: redis.NewClient(&redis.Options{
-			Addr:     addr,
-			Password: password,
-			DB:       db,
-		}),
+func NewRedisCache(addr, password string, db int) (cache.CacheManager, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: password,
+		DB:       db,
+	})
+
+	_, err := client.Ping(context.Background()).Result()
+	if err != nil {
+		return nil, err
 	}
+
+	return &redisCache{client: client}, nil
 }
 
 // Delete implements cache.CacheManager.
