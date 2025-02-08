@@ -9,14 +9,15 @@ import (
 )
 
 type Config struct {
-	App AppConfig
-	DB  DBConfig
-	Cache CacheConfig
+	App           AppConfig
+	DB            DBConfig
+	Cache         CacheConfig
+	StorageConfig StorageConfig
 }
 
 type AppConfig struct {
-	Name string
-	Port int
+	Name      string
+	Port      int
 	AppSecret Secret
 }
 
@@ -46,6 +47,11 @@ type DBConnectionPool struct {
 	MaxIdletimeConnection int
 }
 
+type StorageConfig struct {
+	CredentialsFile string
+	BucketName      string
+}
+
 var Cfg Config
 
 func LoadConfig(envPath ...string) error {
@@ -68,8 +74,18 @@ func LoadConfig(envPath ...string) error {
 	maxIdletime, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLETIME_CONNECTION"))
 
 	publicKeyBase64 := os.Getenv("APP_PUBLIC_KEY")
-
 	publicKey, _ := base64.StdEncoding.DecodeString(publicKeyBase64)
+
+	firebaseCredBase64 := os.Getenv("FIREBASE_CREDENTIALS_BASE64")
+	bucketName := os.Getenv("FIREBASE_BUCKET_NAME")
+
+	decodedCred, _ := base64.StdEncoding.DecodeString(firebaseCredBase64)
+
+	// write to temp file
+	firebaseCred := "/tmp/serviceAccount.json"
+	if err := os.WriteFile(firebaseCred, decodedCred, 0644); err != nil {
+		return err
+	}
 
 	Cfg = Config{
 		App: AppConfig{
@@ -96,6 +112,10 @@ func LoadConfig(envPath ...string) error {
 			Host:     os.Getenv("REDIS_SERVER"),
 			Password: os.Getenv("REDIS_PASSWORD"),
 			DB:       0,
+		},
+		StorageConfig: StorageConfig{
+			CredentialsFile: firebaseCred,
+			BucketName:      bucketName,
 		},
 	}
 
