@@ -1,6 +1,7 @@
 package infrastructures
 
 import (
+	"github.com/ardwiinoo/micro-music/musics/internal/applications/service"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ardwiinoo/micro-music/musics/config"
@@ -12,20 +13,21 @@ import (
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/database/postgres"
 	"github.com/ardwiinoo/micro-music/musics/internal/infrastructures/repository"
 	infraSecurity "github.com/ardwiinoo/micro-music/musics/internal/infrastructures/security"
+	infraService "github.com/ardwiinoo/micro-music/musics/internal/infrastructures/service"
 )
 
 type Container struct {
-	DB *sqlx.DB
-	redis appCache.CacheManager
-	TokenManager appSecurity.TokenManager
-	SongRepository songs.SongRepository
-	AddSongUseCase usecase.AddSongUseCase
+	DB                 *sqlx.DB
+	Redis              appCache.CacheManager
+	FirebaseStorage    service.FirebaseService
+	TokenManager       appSecurity.TokenManager
+	SongRepository     songs.SongRepository
+	AddSongUseCase     usecase.AddSongUseCase
 	GetListSongUseCase usecase.GetListSongUseCase
-
 }
 
 func NewContainer() (container *Container, err error) {
-	
+
 	// Database
 	db, err := postgres.ConnectPostgres()
 	if err != nil {
@@ -33,7 +35,16 @@ func NewContainer() (container *Container, err error) {
 	}
 
 	// Cache
-	redis := infraCache.NewRedisCache(config.Cfg.Cache.Host, config.Cfg.Cache.Password, config.Cfg.Cache.DB)
+	redis, err := infraCache.NewRedisCache(config.Cfg.Cache.Host, config.Cfg.Cache.Password, config.Cfg.Cache.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	// Firebase Storage
+	firebaseStorage, err := infraService.NewFirebaseStorage(config.Cfg.StorageConfig.CredentialsFile, config.Cfg.StorageConfig.BucketName)
+	if err != nil {
+		return nil, err
+	}
 
 	// Security
 	pasetoManager := infraSecurity.NewPasetoTokenManager(config.Cfg.App.AppSecret.AppPublicKey)
@@ -47,11 +58,12 @@ func NewContainer() (container *Container, err error) {
 	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository, redis)
 
 	return &Container{
-		DB: db,
-		redis: redis,
-		TokenManager: pasetoManager,
-		SongRepository: songRepository,
-		AddSongUseCase: addSongUseCase,
+		DB:                 db,
+		Redis:              redis,
+		FirebaseStorage:    firebaseStorage,
+		TokenManager:       pasetoManager,
+		SongRepository:     songRepository,
+		AddSongUseCase:     addSongUseCase,
 		GetListSongUseCase: getListSongUseCase,
 	}, nil
 }
