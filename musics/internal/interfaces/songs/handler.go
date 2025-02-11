@@ -2,6 +2,7 @@ package songs
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"io"
 
 	"github.com/ardwiinoo/micro-music/musics/internal/commons/exceptions"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs/entities"
@@ -76,4 +77,26 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 			"song_id": id,
 		},
 	})
+}
+
+func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
+	songID := ctx.Params("id")
+	rangeHeader := ctx.Get("Range")
+
+	body, statusCode, contentType, err := s.container.StreamSongUseCase.Execute(ctx.UserContext(), songID, rangeHeader)
+	if err != nil {
+		return err
+	}
+
+	defer body.Close()
+
+	ctx.Set("Content-Type", contentType)
+	ctx.Status(statusCode)
+
+	_, err = io.Copy(ctx.Response().BodyWriter(), body)
+	if err != nil {
+		return err
+	}
+	
+	return nil
 }
