@@ -24,6 +24,7 @@ type Container struct {
 	SongRepository     songs.SongRepository
 	AddSongUseCase     usecase.AddSongUseCase
 	GetListSongUseCase usecase.GetListSongUseCase
+	StreamSongUseCase  usecase.StreamSongUseCase
 }
 
 func NewContainer() (container *Container, err error) {
@@ -56,6 +57,7 @@ func NewContainer() (container *Container, err error) {
 	// Use case
 	addSongUseCase := usecase.NewAddSongUseCase(songRepository, userRepository)
 	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository, redis)
+	streamSongUseCase := usecase.NewStreamSongUseCase(songRepository)
 
 	return &Container{
 		DB:                 db,
@@ -65,6 +67,7 @@ func NewContainer() (container *Container, err error) {
 		SongRepository:     songRepository,
 		AddSongUseCase:     addSongUseCase,
 		GetListSongUseCase: getListSongUseCase,
+		StreamSongUseCase:  streamSongUseCase,
 	}, nil
 }
 
