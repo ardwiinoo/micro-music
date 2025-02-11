@@ -9,4 +9,5 @@ import (
 type SongRepository interface {
 	GetListSong(ctx context.Context) (listSong []entities.DetailSong, err error)
 	AddSong(ctx context.Context, payload entities.AddSong) (id string, err error)
+	GetSongById(ctx context.Context, songId string) (song entities.DetailSong, err error)
 }
