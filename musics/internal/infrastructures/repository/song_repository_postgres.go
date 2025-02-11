@@ -15,7 +15,6 @@ type songRepositoryPostgres struct {
 	db *sqlx.DB
 }
 
-
 func NewSongRepositoryPostgres(db *sqlx.DB) songs.SongRepository {
 	return &songRepositoryPostgres{
 		db: db,
@@ -33,10 +32,10 @@ func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.A
 	`
 
 	params := map[string]interface{}{
-		"id": uuid.Must(uuid.NewRandom()).String(),
-		"title": payload.Title,
-		"year": payload.Year,
-		"artist": payload.Artist,
+		"id":         uuid.Must(uuid.NewRandom()).String(),
+		"title":      payload.Title,
+		"year":       payload.Year,
+		"artist":     payload.Artist,
 		"created_at": time.Now(),
 		"updated_at": time.Now(),
 	}
@@ -47,7 +46,7 @@ func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.A
 	}
 
 	defer stmt.Close()
-	
+
 	err = stmt.QueryRowContext(ctx, params).Scan(&id)
 	if err != nil {
 		return
@@ -64,6 +63,22 @@ func (s *songRepositoryPostgres) GetListSong(ctx context.Context) (listSong []en
 	`
 
 	err = s.db.SelectContext(ctx, &listSong, query)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GetSongById implements songs.SongRepository.
+func (s *songRepositoryPostgres) GetSongById(ctx context.Context, songId string) (song entities.DetailSong, err error) {
+	query := `
+		SELECT id, title, year, artist, url
+		FROM songs
+		WHERE id = $1
+	`
+
+	err = s.db.GetContext(ctx, &song, query, songId)
 	if err != nil {
 		return
 	}
