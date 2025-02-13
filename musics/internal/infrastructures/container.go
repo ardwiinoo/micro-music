@@ -55,7 +55,7 @@ func NewContainer() (container *Container, err error) {
 	userRepository := repository.NewUserRepository(db)
 
 	// Use case
-	addSongUseCase := usecase.NewAddSongUseCase(songRepository, userRepository)
+	addSongUseCase := usecase.NewAddSongUseCase(songRepository, userRepository, firebaseStorage)
 	getListSongUseCase := usecase.NewGetListSongUseCase(songRepository, redis)
 	streamSongUseCase := usecase.NewStreamSongUseCase(songRepository)
 
