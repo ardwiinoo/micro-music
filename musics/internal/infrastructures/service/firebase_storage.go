@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/service"
+	"github.com/google/uuid"
 	"google.golang.org/api/option"
 	"io"
 )
@@ -17,7 +18,7 @@ type firebaseStorage struct {
 // Upload implements service.FirebaseService.
 func (f firebaseStorage) Upload(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	bucket := f.client.Bucket(f.bucketName)
-	obj := bucket.Object("music/" + fileName)
+	obj := bucket.Object("music/" + uuid.New().String() + "_" + fileName)
 
 	wc := obj.NewWriter(ctx)
 	wc.ContentType = "audio/mpeg"

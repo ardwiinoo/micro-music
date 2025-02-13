@@ -36,6 +36,7 @@ func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.A
 		"title":      payload.Title,
 		"year":       payload.Year,
 		"artist":     payload.Artist,
+		"url":        payload.Url,
 		"created_at": time.Now(),
 		"updated_at": time.Now(),
 	}
@@ -58,7 +59,7 @@ func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.A
 // GetListSong implements songs.SongRepository.
 func (s *songRepositoryPostgres) GetListSong(ctx context.Context) (listSong []entities.DetailSong, err error) {
 	query := `
-		SELECT id, title, year, artist
+		SELECT id, title, year, artist, url
 		FROM songs
 	`
 

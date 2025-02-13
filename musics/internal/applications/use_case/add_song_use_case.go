@@ -3,6 +3,9 @@ package usecase
 import (
 	"context"
 	"errors"
+	"github.com/ardwiinoo/micro-music/musics/internal/applications/service"
+	"mime/multipart"
+	"net/http"
 
 	"github.com/google/uuid"
 
@@ -10,26 +13,27 @@ import (
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs/entities"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/users"
-
 )
 
 type AddSongUseCase interface {
-	Execute(ctx context.Context, payload entities.AddSong) (id string, err error)
+	Execute(ctx context.Context, payload entities.AddSong, songFile *multipart.FileHeader) (id string, err error)
 }
 
 type addSongUseCase struct {
-	songRepository songs.SongRepository
-	userRepository users.UserRepository
+	songRepository  songs.SongRepository
+	userRepository  users.UserRepository
+	firebaseStorage service.FirebaseService
 }
 
-func NewAddSongUseCase(songRepository songs.SongRepository, userRepository users.UserRepository) AddSongUseCase {
+func NewAddSongUseCase(songRepository songs.SongRepository, userRepository users.UserRepository, firebaseStorage service.FirebaseService) AddSongUseCase {
 	return &addSongUseCase{
-		songRepository: songRepository,
-		userRepository: userRepository,
+		songRepository:  songRepository,
+		userRepository:  userRepository,
+		firebaseStorage: firebaseStorage,
 	}
 }
 
-func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong) (id string, err error) {
+func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong, songFile *multipart.FileHeader) (id string, err error) {
 
 	publicID, ok := ctx.Value(constants.PublicIDContextKey).(uuid.UUID)
 	if !ok {
@@ -49,7 +53,33 @@ func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong) 
 	if err != nil {
 		return "", err
 	}
-	
+
+	file, err := songFile.Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	contentType := http.DetectContentType(buffer)
+	if contentType != "audio/mpeg" && contentType != "audio/mp3" && contentType != "audio/aac" {
+		return "", errors.New("ADD_SONG_USE_CASE.INVALID_FILE_TYPE")
+	}
+
+	file.Seek(0, 0)
+
+	publicUrl, err := a.firebaseStorage.Upload(ctx, songFile.Filename, file)
+	if err != nil {
+		return "", err
+	}
+
+	payload.Url = publicUrl
+
 	id, err = a.songRepository.AddSong(ctx, payload)
 	if err != nil {
 		return "", err

@@ -9,4 +9,5 @@ var DomainErrorMapping = map[string]exceptions.AppError{
 	"ADD_SONG_USE_CASE.PUBLIC_ID_NOT_FOUND":   exceptions.UnauthorizedError("Public ID not found"),
 	"ADD_SONG_USE_CASE.USER_NOT_FOUND":        exceptions.NotFoundError("User not found"),
 	"ADD_SONG_USE_CASE.USER_NOT_AUTHORIZED":   exceptions.UnauthorizedError("User not authorized"),
+	"ADD_SONG_USE_CASE.INVALID_FILE_TYPE":     exceptions.InvariantError("Invalid file type"),
 }

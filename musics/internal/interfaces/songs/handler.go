@@ -65,8 +65,12 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return exceptions.InvariantError("invalid payload")
 	}
+	songFile, err := ctx.FormFile("song")
+	if err != nil {
+		return exceptions.InvariantError("file not found")
+	}
 
-	id, err := s.container.AddSongUseCase.Execute(ctx.UserContext(), payload)
+	id, err := s.container.AddSongUseCase.Execute(ctx.UserContext(), payload, songFile)
 	if err != nil {
 		return err
 	}
@@ -79,6 +83,18 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 	})
 }
 
+// StreamSongHandler godoc
+// @Summary      Stream a song
+// @Description  Stream a song by its ID
+// @Tags         Songs
+// @Accept       */*
+// @Produce      audio/mpeg
+// @Param        id   path      string  true  "Song ID"
+// @Param        Range header   string  false "Range"
+// @Success      206 {file} audio/mpeg
+// @Failure      404 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /songs/{id}/stream [get]
 func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
 	songID := ctx.Params("id")
 	rangeHeader := ctx.Get("Range")
@@ -97,6 +113,6 @@ func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
