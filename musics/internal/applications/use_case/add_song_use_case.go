@@ -71,7 +71,9 @@ func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong, 
 		return "", errors.New("ADD_SONG_USE_CASE.INVALID_FILE_TYPE")
 	}
 
-	file.Seek(0, 0)
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", err
+	}
 
 	publicUrl, err := a.firebaseStorage.Upload(ctx, songFile.Filename, file)
 	if err != nil {
