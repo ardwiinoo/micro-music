@@ -10,7 +10,7 @@ type AddSong struct {
 }
 
 func (a *AddSong) Validate() (err error) {
-	if a.Title == "" || a.Year == 0 || a.Artist == "" || a.Url == "" {
+	if a.Title == "" || a.Year == 0 || a.Artist == "" {
 		return errors.New("ADD_SONG.NOT_CONTAIN_NEEDED_PROPERTY")
 	}
 
