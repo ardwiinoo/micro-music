@@ -18,7 +18,9 @@ type firebaseStorage struct {
 // Upload implements service.FirebaseService.
 func (f firebaseStorage) Upload(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	bucket := f.client.Bucket(f.bucketName)
-	obj := bucket.Object("music/" + uuid.New().String() + "_" + fileName)
+
+	uniqueFileName := uuid.New().String() + "_" + fileName
+	obj := bucket.Object("music/" + uniqueFileName)
 
 	wc := obj.NewWriter(ctx)
 	wc.ContentType = "audio/mpeg"
@@ -31,13 +33,15 @@ func (f firebaseStorage) Upload(ctx context.Context, fileName string, file io.Re
 		return "", err
 	}
 
-	// Generate publicUrl
-	return fmt.Sprintf("https://storage.googleapis.com/%s/music/%s", f.bucketName, fileName), nil
+	return fmt.Sprintf(
+		"https://firebasestorage.googleapis.com/v0/b/%s/o/music%%2F%s?alt=media",
+		f.bucketName, uniqueFileName,
+	), nil
 }
 
 // Delete implements service.FirebaseService.
-func (f firebaseStorage) Delete(ctx context.Context, fileName string) error {
-	obj := f.client.Bucket(f.bucketName).Object("music/" + fileName)
+func (f firebaseStorage) Delete(ctx context.Context, uniqueFileName string) error {
+	obj := f.client.Bucket(f.bucketName).Object("music/" + uniqueFileName)
 	return obj.Delete(ctx)
 }
 

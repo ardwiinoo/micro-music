@@ -53,7 +53,7 @@ const docTemplate = `{
                 ],
                 "description": "Add a new song to the database",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -64,25 +64,44 @@ const docTemplate = `{
                 "summary": "Add a new song",
                 "parameters": [
                     {
-                        "description": "Song Payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.AddSong"
-                        }
-                    },
-                    {
                         "type": "string",
                         "description": "Authorization Bearer Token",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Song Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Song Release Year",
+                        "name": "year",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Artist Name",
+                        "name": "artist",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "MP3 File",
+                        "name": "song",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -90,6 +109,13 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -104,20 +130,56 @@ const docTemplate = `{
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "entities.AddSong": {
-            "type": "object",
-            "properties": {
-                "artist": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "year": {
-                    "type": "integer"
+        },
+        "/songs/{id}/stream": {
+            "get": {
+                "description": "Stream a song by its ID",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "audio/mpeg"
+                ],
+                "tags": [
+                    "Songs"
+                ],
+                "summary": "Stream a song",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Song ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Range",
+                        "name": "Range",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "206": {
+                        "description": "Partial Content",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
                 }
             }
         }

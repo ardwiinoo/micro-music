@@ -25,9 +25,9 @@ func NewSongRepositoryPostgres(db *sqlx.DB) songs.SongRepository {
 func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.AddSong) (id string, err error) {
 	query := `
 		INSERT INTO songs 
-			(id, title, year, artist, created_at, updated_at)
+			(id, title, year, artist, url, created_at, updated_at)
 		VALUES
-			(:id, :title, :year, :artist, :created_at, :updated_at)
+			(:id, :title, :year, :artist, :url, :created_at, :updated_at)
 		RETURNING id
 	`
 
@@ -36,24 +36,23 @@ func (s *songRepositoryPostgres) AddSong(ctx context.Context, payload entities.A
 		"title":      payload.Title,
 		"year":       payload.Year,
 		"artist":     payload.Artist,
-		"url":        payload.Url,
+		"url":        payload.Url, // ✅ Tambahkan `url`
 		"created_at": time.Now(),
 		"updated_at": time.Now(),
 	}
 
 	stmt, err := s.db.PrepareNamedContext(ctx, query)
 	if err != nil {
-		return
+		return "", err
 	}
-
 	defer stmt.Close()
 
 	err = stmt.QueryRowContext(ctx, params).Scan(&id)
 	if err != nil {
-		return
+		return "", err
 	}
 
-	return
+	return id, nil
 }
 
 // GetListSong implements songs.SongRepository.

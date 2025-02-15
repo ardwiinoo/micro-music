@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs"
 	"io"
 	"net/http"
@@ -21,13 +22,12 @@ func NewStreamSongUseCase(songRepository songs.SongRepository) StreamSongUseCase
 	}
 }
 
-func (s streamSongUseCase) Execute(ctx context.Context, songId string, rangeHeader string) (io.ReadCloser, int, string, error) {
-	song, err := s.songRepository.GetSongById(ctx, songId)
+func (s *streamSongUseCase) Execute(ctx context.Context, songID string, rangeHeader string) (io.ReadCloser, int, string, error) {
+	song, err := s.songRepository.GetSongById(ctx, songID)
 	if err != nil {
 		return nil, 0, "", err
 	}
 
-	// Req file from firebase
 	req, err := http.NewRequest("GET", song.Url, nil)
 	if err != nil {
 		return nil, 0, "", err
@@ -43,5 +43,18 @@ func (s streamSongUseCase) Execute(ctx context.Context, songId string, rangeHead
 		return nil, 0, "", err
 	}
 
-	return resp.Body, resp.StatusCode, resp.Header.Get("Content-Type"), nil
+	contentLength := resp.ContentLength
+	contentRange := resp.Header.Get("Content-Range")
+
+	statusCode := http.StatusOK
+	if rangeHeader != "" {
+		statusCode = http.StatusPartialContent
+	}
+
+	fmt.Println("Status Code:", statusCode)
+	fmt.Println("Content-Type:", resp.Header.Get("Content-Type"))
+	fmt.Println("Content-Length:", contentLength)
+	fmt.Println("Content-Range:", contentRange)
+
+	return resp.Body, statusCode, resp.Header.Get("Content-Type"), nil
 }

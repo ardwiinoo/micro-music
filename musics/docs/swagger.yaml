@@ -1,13 +1,3 @@
-definitions:
-  entities.AddSong:
-    properties:
-      artist:
-        type: string
-      title:
-        type: string
-      year:
-        type: integer
-    type: object
 info:
   contact: {}
 paths:
@@ -34,30 +24,49 @@ paths:
       - Songs
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Add a new song to the database
       parameters:
-      - description: Song Payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entities.AddSong'
       - description: Authorization Bearer Token
         in: header
         name: Authorization
         required: true
         type: string
+      - description: Song Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Song Release Year
+        in: formData
+        name: year
+        required: true
+        type: integer
+      - description: Artist Name
+        in: formData
+        name: artist
+        required: true
+        type: string
+      - description: MP3 File
+        in: formData
+        name: song
+        required: true
+        type: file
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             additionalProperties: true
             type: object
         "400":
           description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "422":
+          description: Unprocessable Entity
           schema:
             additionalProperties: true
             type: object
@@ -69,6 +78,41 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Add a new song
+      tags:
+      - Songs
+  /songs/{id}/stream:
+    get:
+      consumes:
+      - '*/*'
+      description: Stream a song by its ID
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Range
+        in: header
+        name: Range
+        type: string
+      produces:
+      - audio/mpeg
+      responses:
+        "206":
+          description: Partial Content
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Stream a song
       tags:
       - Songs
 swagger: "2.0"

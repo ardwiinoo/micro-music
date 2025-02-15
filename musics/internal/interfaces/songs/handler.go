@@ -50,12 +50,16 @@ func (s *songHandler) getListSongHandler(ctx *fiber.Ctx) error {
 // @Summary      Add a new song
 // @Description  Add a new song to the database
 // @Tags         Songs
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
-// @Param        request body entities.AddSong true "Song Payload"
 // @Param        Authorization header string true "Authorization Bearer Token"
-// @Success      200 {object} map[string]interface{}
+// @Param        title formData string true "Song Title"
+// @Param        year formData integer true "Song Release Year"
+// @Param        artist formData string true "Artist Name"
+// @Param        song formData file true "MP3 File"
+// @Success      201 {object} map[string]interface{}
 // @Failure      400 {object} map[string]interface{}
+// @Failure      422 {object} map[string]interface{}
 // @Failure      500 {object} map[string]interface{}
 // @Security     ApiKeyAuth
 // @Router       /songs [post]
@@ -65,6 +69,7 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return exceptions.InvariantError("invalid payload")
 	}
+
 	songFile, err := ctx.FormFile("song")
 	if err != nil {
 		return exceptions.InvariantError("file not found")
@@ -103,10 +108,10 @@ func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
 	defer body.Close()
 
 	ctx.Set("Content-Type", contentType)
+	ctx.Set("Accept-Ranges", "bytes")
 	ctx.Status(statusCode)
 
 	_, err = io.Copy(ctx.Response().BodyWriter(), body)
