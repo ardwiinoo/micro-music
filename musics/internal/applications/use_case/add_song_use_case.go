@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"github.com/ardwiinoo/micro-music/musics/internal/applications/cache"
 	"github.com/ardwiinoo/micro-music/musics/internal/applications/service"
 	"mime/multipart"
 	"net/http"
@@ -23,13 +24,15 @@ type addSongUseCase struct {
 	songRepository  songs.SongRepository
 	userRepository  users.UserRepository
 	firebaseStorage service.FirebaseService
+	redis           cache.CacheManager
 }
 
-func NewAddSongUseCase(songRepository songs.SongRepository, userRepository users.UserRepository, firebaseStorage service.FirebaseService) AddSongUseCase {
+func NewAddSongUseCase(songRepository songs.SongRepository, userRepository users.UserRepository, firebaseStorage service.FirebaseService, redis cache.CacheManager) AddSongUseCase {
 	return &addSongUseCase{
 		songRepository:  songRepository,
 		userRepository:  userRepository,
 		firebaseStorage: firebaseStorage,
+		redis:           redis,
 	}
 }
 
@@ -83,6 +86,11 @@ func (a *addSongUseCase) Execute(ctx context.Context, payload entities.AddSong, 
 	payload.Url = publicUrl
 
 	id, err = a.songRepository.AddSong(ctx, payload)
+	if err != nil {
+		return "", err
+	}
+
+	err = a.redis.Delete(ctx, constants.RedisKey_ListSong)
 	if err != nil {
 		return "", err
 	}
