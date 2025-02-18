@@ -104,7 +104,7 @@ func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
 	songID := ctx.Params("id")
 	rangeHeader := ctx.Get("Range")
 
-	body, statusCode, contentType, err := s.container.StreamSongUseCase.Execute(ctx.UserContext(), songID, rangeHeader)
+	body, statusCode, contentType, headers, err := s.container.StreamSongUseCase.Execute(ctx.UserContext(), songID, rangeHeader)
 	if err != nil {
 		return err
 	}
@@ -112,12 +112,16 @@ func (s *songHandler) StreamSongHandler(ctx *fiber.Ctx) error {
 
 	ctx.Set("Content-Type", contentType)
 	ctx.Set("Accept-Ranges", "bytes")
+
+	if contentRange := headers.Get("Content-Range"); contentRange != "" {
+		ctx.Set("Content-Range", contentRange)
+	}
+	if contentLength := headers.Get("Content-Length"); contentLength != "" {
+		ctx.Set("Content-Length", contentLength)
+	}
+
 	ctx.Status(statusCode)
 
 	_, err = io.Copy(ctx.Response().BodyWriter(), body)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
