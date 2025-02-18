@@ -2,14 +2,13 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"github.com/ardwiinoo/micro-music/musics/internal/domains/songs"
 	"io"
 	"net/http"
 )
 
 type StreamSongUseCase interface {
-	Execute(ctx context.Context, songId string, rangeHeader string) (io.ReadCloser, int, string, error)
+	Execute(ctx context.Context, songId string, rangeHeader string) (io.ReadCloser, int, string, http.Header, error)
 }
 
 type streamSongUseCase struct {
@@ -22,15 +21,15 @@ func NewStreamSongUseCase(songRepository songs.SongRepository) StreamSongUseCase
 	}
 }
 
-func (s *streamSongUseCase) Execute(ctx context.Context, songID string, rangeHeader string) (io.ReadCloser, int, string, error) {
+func (s *streamSongUseCase) Execute(ctx context.Context, songID string, rangeHeader string) (io.ReadCloser, int, string, http.Header, error) {
 	song, err := s.songRepository.GetSongById(ctx, songID)
 	if err != nil {
-		return nil, 0, "", err
+		return nil, 0, "", nil, err
 	}
 
 	req, err := http.NewRequest("GET", song.Url, nil)
 	if err != nil {
-		return nil, 0, "", err
+		return nil, 0, "", nil, err
 	}
 
 	if rangeHeader != "" {
@@ -40,21 +39,12 @@ func (s *streamSongUseCase) Execute(ctx context.Context, songID string, rangeHea
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, 0, "", err
+		return nil, 0, "", nil, err
 	}
 
-	contentLength := resp.ContentLength
-	contentRange := resp.Header.Get("Content-Range")
-
-	statusCode := http.StatusOK
-	if rangeHeader != "" {
-		statusCode = http.StatusPartialContent
-	}
-
-	fmt.Println("Status Code:", statusCode)
-	fmt.Println("Content-Type:", resp.Header.Get("Content-Type"))
-	fmt.Println("Content-Length:", contentLength)
-	fmt.Println("Content-Range:", contentRange)
-
-	return resp.Body, statusCode, resp.Header.Get("Content-Type"), nil
+	return resp.Body,
+		resp.StatusCode, // from firebase
+		resp.Header.Get("Content-Type"),
+		resp.Header,
+		nil
 }
