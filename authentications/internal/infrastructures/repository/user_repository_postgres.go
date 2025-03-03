@@ -120,8 +120,8 @@ func (u *userRepositoryPostgres) ActivateUser(ctx context.Context, publicId uuid
 	return
 }
 
-// VeryfyUser implements users.UserRepository.
-func (u *userRepositoryPostgres) VeryfyUser(ctx context.Context, publicId uuid.UUID) (err error) {
+// VerifyUser implements users.UserRepository.
+func (u *userRepositoryPostgres) VerifyUser(ctx context.Context, publicId uuid.UUID) (err error) {
 	query := `SELECT id FROM users WHERE public_id = $1`
 
 	var id int
