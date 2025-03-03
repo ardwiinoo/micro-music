@@ -9,10 +9,11 @@ type AddUser struct {
 	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Role     int    `json:"role"`
 }
 
 func (a *AddUser) Validate() (err error) {
-	if a.FullName == "" || a.Email == "" || a.Password == "" {
+	if a.FullName == "" || a.Email == "" || a.Password == "" || a.Role == 0 {
 		return errors.New("ADD_USER.NOT_CONTAIN_NEEDED_PROPERTY")
 	}
 
