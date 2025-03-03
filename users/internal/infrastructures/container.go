@@ -2,16 +2,21 @@ package infrastructures
 
 import (
 	"github.com/ardwiinoo/micro-music/users/config"
+	appSecurity "github.com/ardwiinoo/micro-music/users/internal/applications/security"
+	usecase "github.com/ardwiinoo/micro-music/users/internal/applications/use_case"
 	"github.com/ardwiinoo/micro-music/users/internal/domains/users"
 	"github.com/ardwiinoo/micro-music/users/internal/infrastructures/database/postgres"
 	"github.com/ardwiinoo/micro-music/users/internal/infrastructures/repository"
-	"github.com/ardwiinoo/micro-music/users/internal/infrastructures/security"
+	infraSecurity "github.com/ardwiinoo/micro-music/users/internal/infrastructures/security"
 	"github.com/jmoiron/sqlx"
 )
 
 type Container struct {
-	DB             *sqlx.DB
-	UserRepository users.UserRepository
+	DB                 *sqlx.DB
+	UserRepository     users.UserRepository
+	AddUserUseCase     usecase.AddUserUseCase
+	GetListUserUseCase usecase.GetListUserUseCase
+	TokenManager       appSecurity.TokenManager
 }
 
 func NewContainer() (container *Container, err error) {
@@ -22,15 +27,22 @@ func NewContainer() (container *Container, err error) {
 	}
 
 	// Security
-	passwordHash := security.NewPasswordHash()
-	pasetoManager := security.NewPasetoTokenManager(config.Cfg.App.AppSecret.AppPublicKey)
+	passwordHash := infraSecurity.NewPasswordHash()
+	pasetoManager := infraSecurity.NewPasetoTokenManager(config.Cfg.App.AppSecret.AppPublicKey)
 
 	// Repository
 	userRepo := repository.NewUserRepositoryPostgres(db)
 
+	// UseCase
+	addUserUseCase := usecase.NewAddUserUseCase(userRepo, passwordHash)
+	getListUserUseCase := usecase.NewGetListUserUseCase(userRepo)
+
 	return &Container{
-		DB:             db,
-		UserRepository: userRepo,
+		DB:                 db,
+		UserRepository:     userRepo,
+		AddUserUseCase:     addUserUseCase,
+		GetListUserUseCase: getListUserUseCase,
+		TokenManager:       pasetoManager,
 	}, nil
 }
 
