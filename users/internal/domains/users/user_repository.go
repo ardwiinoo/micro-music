@@ -11,4 +11,5 @@ type UserRepository interface {
 	AddUser(ctx context.Context, payload entities.AddUser) (publicId uuid.UUID, err error)
 	VerifyAvailableEmail(ctx context.Context, email string) (err error)
 	GetDetailUserByPublicId(ctx context.Context, publicId string) (userDetail entities.DetailUser, err error)
+	DeleteUserById(ctx context.Context, userId int) (err error)
 }

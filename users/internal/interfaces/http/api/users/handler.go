@@ -5,6 +5,7 @@ import (
 	"github.com/ardwiinoo/micro-music/users/internal/domains/users/entities"
 	"github.com/ardwiinoo/micro-music/users/internal/infrastructures"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type userHandler struct {
@@ -48,4 +49,20 @@ func (u *userHandler) GetListUserHandler(ctx *fiber.Ctx) error {
 		"status": "success",
 		"data":   listUser,
 	})
+}
+
+func (u *userHandler) DeleteUserHandler(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("id")
+
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		return exceptions.InvariantError("invalid user id")
+	}
+
+	err = u.container.DeleteUserUseCase.Execute(ctx.UserContext(), userId)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(fiber.StatusNoContent)
 }

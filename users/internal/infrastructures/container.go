@@ -16,6 +16,7 @@ type Container struct {
 	UserRepository     users.UserRepository
 	AddUserUseCase     usecase.AddUserUseCase
 	GetListUserUseCase usecase.GetListUserUseCase
+	DeleteUserUseCase  usecase.DeleteUserUseCase
 	TokenManager       appSecurity.TokenManager
 }
 
@@ -36,12 +37,14 @@ func NewContainer() (container *Container, err error) {
 	// UseCase
 	addUserUseCase := usecase.NewAddUserUseCase(userRepo, passwordHash)
 	getListUserUseCase := usecase.NewGetListUserUseCase(userRepo)
+	deleteUserUseCase := usecase.NewDeleteUserUseCase(userRepo)
 
 	return &Container{
 		DB:                 db,
 		UserRepository:     userRepo,
 		AddUserUseCase:     addUserUseCase,
 		GetListUserUseCase: getListUserUseCase,
+		DeleteUserUseCase:  deleteUserUseCase,
 		TokenManager:       pasetoManager,
 	}, nil
 }

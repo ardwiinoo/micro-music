@@ -12,4 +12,5 @@ var DomainErrorMapping = map[string]exceptions.AppError{
 	"GET_LIST_USER_USE_CASE.PUBLIC_ID_NOT_FOUND": exceptions.InvariantError("public id not found"),
 	"GET_LIST_USER_USE_CASE.USER_NOT_FOUND":      exceptions.NotFoundError("user not found"),
 	"GET_LIST_USER_USE_CASE.USER_NOT_AUTHORIZED": exceptions.UnauthorizedError("user not authorized"),
+	"DELETE_USER_USE_CASE.INVALID_USER_ID":       exceptions.InvariantError("invalid user id"),
 }
