@@ -15,6 +15,14 @@ type userRepositoryPostgres struct {
 	db *sqlx.DB
 }
 
+func (u userRepositoryPostgres) DeleteUserById(ctx context.Context, userId int) (err error) {
+	query := `DELETE FROM users WHERE id = $1`
+
+	_, err = u.db.ExecContext(ctx, query, userId)
+
+	return
+}
+
 func (u userRepositoryPostgres) GetDetailUserByPublicId(ctx context.Context, publicId string) (userDetail entities.DetailUser, err error) {
 	query := `SELECT * FROM users WHERE public_id = $1`
 
