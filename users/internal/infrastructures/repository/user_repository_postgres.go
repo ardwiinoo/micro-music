@@ -24,9 +24,19 @@ func (u userRepositoryPostgres) DeleteUserById(ctx context.Context, userId int) 
 }
 
 func (u userRepositoryPostgres) GetDetailUserByPublicId(ctx context.Context, publicId string) (userDetail entities.DetailUser, err error) {
-	query := `SELECT * FROM users WHERE public_id = $1`
+	query := `
+        SELECT
+            id, email, full_name, public_id, role, created_at, updated_at
+        FROM
+            users
+        WHERE
+            public_id = $1
+    `
 
 	err = u.db.GetContext(ctx, &userDetail, query, publicId)
+	if err != nil {
+		return
+	}
 
 	return
 }
@@ -88,7 +98,12 @@ func (u userRepositoryPostgres) AddUser(ctx context.Context, payload entities.Ad
 
 // GetListUser implements users.UserRepository.
 func (u userRepositoryPostgres) GetListUser(ctx context.Context) (users []entities.DetailUser, err error) {
-	query := `SELECT * FROM users`
+	query := `
+		SELECT
+		     id, email, full_name, public_id, role, created_at, updated_at
+		FROM 
+			users
+	`
 
 	err = u.db.SelectContext(ctx, &users, query)
 

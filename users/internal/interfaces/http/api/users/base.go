@@ -14,5 +14,6 @@ func Init(router fiber.Router, container infrastructures.Container) {
 	{
 		userRouter.Post("/", handler.AddUserHandler)
 		userRouter.Get("/", handler.GetListUserHandler)
+		userRouter.Delete("/:id", handler.DeleteUserHandler)
 	}
 }

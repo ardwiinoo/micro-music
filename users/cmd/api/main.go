@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ardwiinoo/micro-music/users/config"
+	_ "github.com/ardwiinoo/micro-music/users/docs"
 	"github.com/ardwiinoo/micro-music/users/internal/infrastructures"
 	"github.com/ardwiinoo/micro-music/users/internal/infrastructures/http"
 	"log"
