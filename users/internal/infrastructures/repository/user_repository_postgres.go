@@ -100,7 +100,7 @@ func (u userRepositoryPostgres) AddUser(ctx context.Context, payload entities.Ad
 func (u userRepositoryPostgres) GetListUser(ctx context.Context) (users []entities.DetailUser, err error) {
 	query := `
 		SELECT
-		     id, email, full_name, public_id, role, created_at, updated_at
+		     id, email, full_name, public_id, role, is_active, created_at, updated_at
 		FROM 
 			users
 	`
