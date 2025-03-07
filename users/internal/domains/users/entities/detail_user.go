@@ -11,6 +11,7 @@ type DetailUser struct {
 	FullName  string    `json:"full_name" db:"full_name"`
 	PublicId  uuid.UUID `json:"public_id" db:"public_id"`
 	Role      int       `json:"role" db:"role"`
+	IsActive  bool      `json:"is_active,omitempty" db:"is_active"`
 	CreatedAt string    `json:"created_at" db:"created_at"`
 	UpdatedAt string    `json:"updated_at" db:"updated_at"`
 }
