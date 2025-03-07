@@ -91,7 +91,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: Range
+      - description: 'Range, ex: Range: bytes=0-1023'
         in: header
         name: Range
         type: string

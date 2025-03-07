@@ -95,7 +95,7 @@ func (s *songHandler) addSongHandler(ctx *fiber.Ctx) error {
 // @Accept       */*
 // @Produce      audio/mpeg
 // @Param        id   path      string  true  "Song ID"
-// @Param        Range header   string  false "Range"
+// @Param        Range header   string  false "Range, ex: Range: bytes=0-1023"
 // @Success      206 {file} audio/mpeg
 // @Failure      404 {object} map[string]interface{}
 // @Failure      500 {object} map[string]interface{}
