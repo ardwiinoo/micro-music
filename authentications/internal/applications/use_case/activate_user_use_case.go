@@ -23,7 +23,7 @@ func NewActivateUserUseCase(userRepository users.UserRepository) ActivateUserUse
 
 func (a *activateUserUseCase) Execute(ctx context.Context, publicId uuid.UUID) (err error) {
 
-	err = a.userRepository.VeryfyUser(ctx, publicId)
+	err = a.userRepository.VerifyUser(ctx, publicId)
 	if err != nil {
 		return
 	}
