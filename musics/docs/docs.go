@@ -154,7 +154,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Range",
+                        "description": "Range, ex: Range: bytes=0-1023",
                         "name": "Range",
                         "in": "header"
                     }
