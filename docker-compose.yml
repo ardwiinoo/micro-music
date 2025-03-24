@@ -1,25 +1,157 @@
-version: '3.9'
+version: '3.8'
+
+networks:
+  kong-net:
+    driver: bridge
+  default-host:
+    driver: bridge
 
 services:
-    authentications:
-        build:
-            context: ./authentications
-            dockerfile: Dockerfile
-        env_file: ./authentications/.env
-        ports:
-            - '9001:9001'
-        restart: unless-stopped
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: micromusic
+    networks:
+      - default-host
+    ports:
+      - "5432:5432"
 
-    mails:
-        build:
-            context: ./mails
-            dockerfile: Dockerfile
-        env_file: ./mails/.env
-        restart: unless-stopped
+  redis:
+    image: redis:latest
+    networks:
+      - default-host
+    ports:
+      - "6379:6379"
 
-    musics:
-        build:
-            context: ./musics
-            dockerfile: Dockerfile
-        env_file: ./musics/.env
-        restart: unless-stopped
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - default-host
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  kong-database:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: kong
+    networks:
+      - kong-net
+    ports:
+      - "5433:5432"
+
+  kong-migrations:
+    image: kong:latest
+    depends_on:
+      - kong-database
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PASSWORD: kong
+      KONG_PG_PORT: 5432
+      KONG_CASSANDRA_CONTACT_POINTS: kong-database
+    networks:
+      - kong-net
+    command: kong migrations bootstrap
+
+  kong:
+    image: kong:latest
+    depends_on:
+      - kong-database
+      - kong-migrations
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PASSWORD: kong
+      KONG_PG_PORT: 5432
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    networks:
+      - kong-net
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8444:8444"
+
+  konga:
+    image: pantsel/konga
+    depends_on:
+      - kong-database
+    environment:
+      NODE_ENV: production
+    networks:
+      - kong-net
+    volumes:
+      - /var/data/kongadata:/app/kongadata
+    ports:
+      - "1337:1337"
+
+  konga-prepare:
+    image: pantsel/konga
+    depends_on:
+      - kong-database
+    networks:
+      - kong-net
+    command: -c prepare -a postgres -u postgresql://kong:kong@kong-database:5432/konga_db
+
+  authentications:
+    build:
+      context: ./authentications
+      dockerfile: Dockerfile
+    env_file:
+      - ./authentications/.env
+    networks:
+      - kong-net
+    ports:
+      - "9001:9001"
+
+  mails:
+    build:
+      context: ./mails
+      dockerfile: Dockerfile
+    env_file:
+      - ./mails/.env
+    networks:
+      - kong-net
+    command: go run ./cmd/main.go
+
+  musics:
+    build:
+      context: ./musics
+      dockerfile: Dockerfile
+    env_file:
+      - ./musics/.env
+    networks:
+      - kong-net
+    ports:
+      - "9002:9002"
+
+  playlists:
+    build:
+      context: ./playlists
+      dockerfile: Dockerfile
+    env_file:
+      - ./playlists/.env
+    networks:
+      - kong-net
+    ports:
+      - "9004:9004"
+
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    env_file:
+      - ./users/.env
+    networks:
+      - kong-net
+    ports:
+      - "9005:9005"
